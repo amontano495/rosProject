@@ -1,0 +1,8 @@
+<launch>
+  <node
+    name="quadLap"
+    pkg="quad"
+    type="quad"
+    ns="quadrunner"
+  />
+</launch>
