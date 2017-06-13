@@ -27,6 +27,8 @@ include_directories(include ${catkin_INCLUDE_DIRS})
 
 add_executable( quadLap quadLap.cpp )
 
+add_executable( quadLap quadRWP.cpp )
+
 target_link_libraries(quadLap ${catkin_LIBRARIES})
 
 
