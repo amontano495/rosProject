@@ -83,5 +83,7 @@ quad/CMakeFiles/quadRWP.dir/quadRWP.cpp.o: /opt/ros/kinetic/include/ros/types.h
 quad/CMakeFiles/quadRWP.dir/quadRWP.cpp.o: /opt/ros/kinetic/include/ros/wall_timer.h
 quad/CMakeFiles/quadRWP.dir/quadRWP.cpp.o: /opt/ros/kinetic/include/ros/wall_timer_options.h
 quad/CMakeFiles/quadRWP.dir/quadRWP.cpp.o: /opt/ros/kinetic/include/rosconsole/macros_generated.h
+quad/CMakeFiles/quadRWP.dir/quadRWP.cpp.o: /opt/ros/kinetic/include/sensor_msgs/NavSatFix.h
+quad/CMakeFiles/quadRWP.dir/quadRWP.cpp.o: /opt/ros/kinetic/include/sensor_msgs/NavSatStatus.h
 quad/CMakeFiles/quadRWP.dir/quadRWP.cpp.o: /opt/ros/kinetic/include/std_msgs/Header.h
 

@@ -2,9 +2,11 @@
 #include <vector>
 #include <cstdlib>
 #include <ctime>
+#include <iomanip>
 #include <csignal>
 #include <boost/thread.hpp>
 #include <ros/ros.h>
+#include <sensor_msgs/NavSatFix.h>
 #include <geometry_msgs/TwistStamped.h>
 #include <mavros_msgs/WaypointPush.h>
 #include <mavros_msgs/WaypointPull.h>
@@ -16,35 +18,50 @@
 #include <mavros_msgs/ParamPush.h>
 #include <mavros_msgs/ParamGet.h>
 
+//Global latitude and longitude
+double botLon;
+double botLat;
+
 bool waypointPusher( mavros_msgs::WaypointPush &pusher, ros::ServiceClient client, ros::NodeHandle node, 
 	int frame, int command, bool isCurrent, bool autoCont, 
 	float param1, float param2, float param3, float param4, 
 	float lat, float lon, float alt );
 
-float randCoord( float high, float low );
+double randCoord( double high, double low );
+
+bool erleInit(int speed, ros::NodeHandle &node );
+
+void setBotMode( std::string mode, ros::NodeHandle &node );
+
+int getWaypointAmt( ros::NodeHandle &node );
+
+void getBotLon( const sensor_msgs::NavSatFix& msg );
+
+void getBotLat( const sensor_msgs::NavSatFix& msg );
 
 int main(int argc, char** argv)
 {
+	//Initial ROS settings
 	srand(static_cast <unsigned> (time(0)));
 	ros::init(argc, argv, "mavros_mission_push");
-
 	ros::Time::init();
-
 	int rate = 10;
 	ros::Rate r(rate);
-
 	ros::NodeHandle n;
+
+	//Objects to send waypoints to bot
 	ros::ServiceClient pushClient;
 	mavros_msgs::WaypointPush wayPusher;
 
-	float vertexNEx = 39.539152;
-	float vertexNEy = -119.814124;
-	float vertexSWx = 39.537778;
-	float vertexSWy = -119.814219;
+	//Obtain data from user
+	double vertexNEx = 39.539152;
+	double vertexNEy = -119.814124;
+	double vertexSWx = 39.537778;
+	double vertexSWy = -119.814219;
 
-	int totalTime;
-	int inputSpeed;
-	int pause;
+	int totalTime = 10;
+	int inputSpeed = 16;
+	int pause = 3;
 /*
 	ROS_INFO("Enter x coordinate for NE vertex: ");
 	std::cin >> vertexNEx;
@@ -54,169 +71,59 @@ int main(int argc, char** argv)
 	std::cin >> vertexSWx;
 	ROS_INFO("Enter y coordinate for SW vertex: ");
 	std::cin >> vertexSWy;
-*/
 	ROS_INFO("Enter time to run: ");
 	std::cin >> totalTime;
-
 	ROS_INFO("Enter desired speed (default is 16): ");
 	std::cin >> inputSpeed;
-
 	ROS_INFO("Enter the pause time ");
 	std::cin >> pause;
+*/
+	//Initialize MAVROS parameters
+	if( erleInit(inputSpeed, n) )
+		ROS_INFO("FINISHED INITIALIZING PARAMETERS");
 
-	//Update speed using param
-	mavros_msgs::ParamValue steerVal;
-	mavros_msgs::ParamSet steerSetter;
-	steerVal.real = 2.0;
-	steerVal.integer = 0;
-	steerSetter.request.value = steerVal;
-	steerSetter.request.param_id = "STEER2SRV_P";
+	setBotMode("AUTO", n);
 
-	mavros_msgs::ParamValue turnMaxGVal;
-	mavros_msgs::ParamSet turnMaxGSetter;
-	turnMaxGVal.real = 1.0;
-	turnMaxGVal.integer = 0;
-	turnMaxGSetter.request.value = turnMaxGVal;
-	turnMaxGSetter.request.param_id = "TURN_MAX_G";
-
-	mavros_msgs::ParamValue navAggVal;
-	mavros_msgs::ParamSet navAggSetter;
-	navAggVal.real = 0.0;
-	navAggVal.integer = 6;
-	navAggSetter.request.value = navAggVal;
-	navAggSetter.request.param_id = "NAVL1_PERIOD";
-
-	mavros_msgs::ParamValue turnGainVal;
-	mavros_msgs::ParamSet turnGainSetter;
-	turnGainVal.real = 0.0;
-	turnGainVal.integer = 100;
-	turnGainSetter.request.value = turnGainVal;
-	turnGainSetter.request.param_id = "SPEED_TURN_GAIN";
-
-	mavros_msgs::ParamValue maxThrottleVal;
-	mavros_msgs::ParamSet maxThrottleSetter;
-	maxThrottleVal.real = 0.0;
-	maxThrottleVal.integer = inputSpeed;
-	maxThrottleSetter.request.value = maxThrottleVal;
-	maxThrottleSetter.request.param_id = "THR_MAX";
-
-	mavros_msgs::ParamValue throttleVal;
-	mavros_msgs::ParamSet throttleSetter;
-
-	throttleVal.real = 0.0;
-	throttleVal.integer = inputSpeed;
-	throttleSetter.request.value = throttleVal;
-	throttleSetter.request.param_id = "CRUISE_THROTTLE";
-
-	ros::ServiceClient speedClient;
-	ros::ServiceClient speedPushClient;
-	mavros_msgs::ParamValue speedVal;
-	mavros_msgs::ParamSet speedSetter;
-	mavros_msgs::ParamPush speedPusher;
-
-	speedClient = n.serviceClient<mavros_msgs::ParamSet>("mavros/param/set");
-	speedPushClient = n.serviceClient<mavros_msgs::ParamPush>("mavros/param/push");
-	speedVal.real = 2.0;
-	speedVal.integer = 0;
-	speedSetter.request.value = speedVal;
-	speedSetter.request.param_id = "CRUISE_SPEED";
-
-	bool speedSetSucc = speedClient.call(speedSetter);
-	speedSetSucc = speedClient.call(throttleSetter);
-	speedSetSucc = speedClient.call(maxThrottleSetter);
-	speedSetSucc = speedClient.call(steerSetter);
-	speedSetSucc = speedClient.call(turnMaxGSetter);
-	speedSetSucc = speedClient.call(navAggSetter);
-	speedSetSucc = speedClient.call(turnGainSetter);
-
-	bool speedPushSucc = speedPushClient.call(speedPusher);
-
-
-	if( speedSetSucc && speedPushSucc )
-		ROS_INFO("SPEED SUCCESSFULLY UPDATED");
-	else
-		ROS_INFO("SPEED UPDATE FAILED");
-
-	
-	//Activate auto mode
-	mavros_msgs::SetMode setModeAuto;
-	mavros_msgs::State currentState;
-	ros::ServiceClient setModeClient = n.serviceClient<mavros_msgs::SetMode>("mavros/set_mode");
-
-	setModeAuto.request.custom_mode = "AUTO";
-
-	if( currentState.mode != "AUTO" )
-	{
-		if( setModeClient.call(setModeAuto) )
-			ROS_INFO("AUTO MODE ENABLED");
-		else
-			ROS_ERROR("FAILED TO ENABLE AUTO MODE");
-	}
-
-
-	float currentLat;
-	float currentLong;
-
-	time_t endwait;
-	endwait = time(NULL) + totalTime;
-
-	time_t pausewait;
+	//Set up initial waypoint
+	double currentLat;
+	double currentLong;
 	currentLat = randCoord( vertexNEy, vertexSWy );
 	currentLong = randCoord( vertexNEx, vertexSWx );
 	std::cout << "Pushed coords: " << currentLong << " , " << currentLat << std::endl;
-	waypointPusher( wayPusher, pushClient, n, 2, 16, true, true, 0, 0, 0, 0, currentLat, currentLong, 50);
+	waypointPusher( wayPusher, pushClient, n, 2, 22, true, true, 15, 0, 0, 0, (float)currentLat, (float)currentLong, 50);
 
-	ros::ServiceClient waypointClient = n.serviceClient<mavros_msgs::WaypointPull>("mavros/mission/pull");
+	time_t endwait;
+	time_t pausewait;
+	endwait = time(NULL) + totalTime;
+	
+	ros::Subscriber gpsSub1 = n.subscribe("global_position/global", 1000, &getBotLon);
+	ros::Subscriber gpsSub2 = n.subscribe("global_position/global", 1000, &getBotLat);
 
-	mavros_msgs::WaypointPull::Request req;
-	mavros_msgs::WaypointPull::Response resp;
-	bool clientCallSuccess;
 	//while true loop
 	while(time(NULL) < endwait)
 	{
-		clientCallSuccess = waypointClient.call(req, resp);	
+		std::cout << "botLat: " << botLat << " , botLon: " << botLon << std::endl;
 		//if wp reached, push new random wp
-		if(clientCallSuccess && resp.wp_received < 2 )
+		if(botLat == currentLat && botLon == currentLong)
 		{
-			maxThrottleVal.integer = 0;
-			maxThrottleSetter.request.value = maxThrottleVal;
-			maxThrottleSetter.request.param_id = "THR_MAX";
-			speedSetSucc = speedClient.call(maxThrottleSetter);
-
+			erleInit(0, n);
 			pausewait = time(NULL) + pause;
-			if(!speedSetSucc)
-				ROS_WARN("WARNING: FAILED TO SET MAX THROTTLE TO 0");
+			ROS_INFO("PAUSING...");
 			while(time(NULL) < pausewait)
 			{
-				ROS_INFO("PAUSING...");
+				//ROS_INFO("PAUSING...");
 			}
-			maxThrottleVal.integer = inputSpeed;
-			maxThrottleSetter.request.value = maxThrottleVal;
-			maxThrottleSetter.request.param_id = "THR_MAX";
-			speedSetSucc = speedClient.call(maxThrottleSetter);
-			if(!speedSetSucc)
-				ROS_WARN("WARNING: FAILED TO RESET MAX THROTTLE");
-
+			erleInit(16, n);
 			currentLat = randCoord( vertexNEy, vertexSWy );
 			currentLong = randCoord( vertexNEx, vertexSWx );
-			std::cout << "Pushed coords: " << currentLong << " , " << currentLat << std::endl;
-			waypointPusher( wayPusher, pushClient, n, 2, 16, true, true, 0, 0, 0, 0, currentLat, currentLong, 50);
+			std::cout << "Pushed coords: " << std::setprecision(9) << currentLong << " , " << std::setprecision(9) << currentLat << std::endl;
+			waypointPusher( wayPusher, pushClient, n, 3, 16, true, true, 0, 0, 0, 0, (float)currentLat, (float)currentLong, 50);
 		}
 		ros::spinOnce();
 		r.sleep();
-		std::cout << time(NULL) << std::endl;
 	}
 
-	//Activate manual mode
-	setModeAuto.request.custom_mode = "MANUAL";
-
-	if( currentState.mode != "MANUAL" )
-	{
-		if( setModeClient.call(setModeAuto) )
-			ROS_INFO("MANUAL MODE ENABLED");
-		else
-			ROS_ERROR("FAILED TO ENABLE MANUAL MODE");
-	}
+	setBotMode("MANUAL", n);
 
 	return 0;
 }
@@ -252,8 +159,130 @@ bool waypointPusher( mavros_msgs::WaypointPush &pusher, ros::ServiceClient clien
 	return client.call(pusher);
 }
 
-float randCoord( float high, float low )
+double randCoord( double high, double low )
 {
-	float randomNum = high + static_cast <float> (rand()) / ( static_cast <float> (RAND_MAX/(high-low)));
+	double randomNum = high + static_cast <double> (rand()) / ( static_cast <double> (RAND_MAX/(high-low)));
 	return randomNum;
+}
+
+bool erleInit(int speed, ros::NodeHandle &node)
+{
+	//Update speed using param
+	mavros_msgs::ParamValue steerVal;
+	mavros_msgs::ParamSet steerSetter;
+	steerVal.real = 2.0;
+	steerVal.integer = 0;
+	steerSetter.request.value = steerVal;
+	steerSetter.request.param_id = "STEER2SRV_P";
+
+	mavros_msgs::ParamValue turnMaxGVal;
+	mavros_msgs::ParamSet turnMaxGSetter;
+	turnMaxGVal.real = 1.0;
+	turnMaxGVal.integer = 0;
+	turnMaxGSetter.request.value = turnMaxGVal;
+	turnMaxGSetter.request.param_id = "TURN_MAX_G";
+
+	mavros_msgs::ParamValue navAggVal;
+	mavros_msgs::ParamSet navAggSetter;
+	navAggVal.real = 0.0;
+	navAggVal.integer = 6;
+	navAggSetter.request.value = navAggVal;
+	navAggSetter.request.param_id = "NAVL1_PERIOD";
+
+	mavros_msgs::ParamValue turnGainVal;
+	mavros_msgs::ParamSet turnGainSetter;
+	turnGainVal.real = 0.0;
+	turnGainVal.integer = 100;
+	turnGainSetter.request.value = turnGainVal;
+	turnGainSetter.request.param_id = "SPEED_TURN_GAIN";
+
+	mavros_msgs::ParamValue maxThrottleVal;
+	mavros_msgs::ParamSet maxThrottleSetter;
+	maxThrottleVal.real = 0.0;
+	maxThrottleVal.integer = speed;
+	maxThrottleSetter.request.value = maxThrottleVal;
+	maxThrottleSetter.request.param_id = "THR_MAX";
+
+	mavros_msgs::ParamValue throttleVal;
+	mavros_msgs::ParamSet throttleSetter;
+	throttleVal.real = 0.0;
+	throttleVal.integer = speed;
+	throttleSetter.request.value = throttleVal;
+	throttleSetter.request.param_id = "CRUISE_THROTTLE";
+
+	ros::ServiceClient speedClient;
+	ros::ServiceClient speedPushClient;
+	mavros_msgs::ParamValue speedVal;
+	mavros_msgs::ParamSet speedSetter;
+	mavros_msgs::ParamPush speedPusher;
+
+	speedClient = node.serviceClient<mavros_msgs::ParamSet>("mavros/param/set");
+	speedPushClient = node.serviceClient<mavros_msgs::ParamPush>("mavros/param/push");
+	speedVal.real = 2.0;
+	speedVal.integer = 0;
+	speedSetter.request.value = speedVal;
+	speedSetter.request.param_id = "CRUISE_SPEED";
+
+	bool speedSetSucc = speedClient.call(speedSetter);
+	speedSetSucc = speedClient.call(throttleSetter);
+	speedSetSucc = speedClient.call(maxThrottleSetter);
+	speedSetSucc = speedClient.call(steerSetter);
+	speedSetSucc = speedClient.call(turnMaxGSetter);
+	speedSetSucc = speedClient.call(navAggSetter);
+	speedSetSucc = speedClient.call(turnGainSetter);
+
+	bool speedPushSucc = speedPushClient.call(speedPusher);
+
+
+	if( speedSetSucc && speedPushSucc )
+		ROS_INFO("SPEED SUCCESSFULLY UPDATED");
+	else
+		ROS_INFO("SPEED UPDATE FAILED");
+
+	return speedPushSucc;
+}
+
+void setBotMode( std::string mode, ros::NodeHandle &node)
+{
+	mavros_msgs::SetMode setMode;
+	mavros_msgs::State currentState;
+	ros::ServiceClient setModeClient = node.serviceClient<mavros_msgs::SetMode>("mavros/set_mode");
+
+	setMode.request.custom_mode = mode;
+
+	if( currentState.mode != mode )
+	{
+		if( setModeClient.call(setMode) )
+			ROS_INFO_STREAM("MODE UPDATED TO: " << mode);
+		else
+			ROS_ERROR_STREAM("FAILED TO UPDATE MODE TO: " << mode);
+	}
+}
+
+int getWaypointAmt( ros::NodeHandle &node )
+{
+	ros::ServiceClient waypointClient = node.serviceClient<mavros_msgs::WaypointPull>("mavros/mission/pull");
+	mavros_msgs::WaypointPull::Request req;
+	mavros_msgs::WaypointPull::Response resp;
+	bool clientCallSuccess;
+
+
+	clientCallSuccess = waypointClient.call(req, resp);
+
+	if( clientCallSuccess )
+		ROS_INFO("WAYPOINT PULL SUCCESSFUL");
+	else
+		ROS_INFO("WAYPOINT PULL FAILED");
+
+	return resp.wp_received;
+}
+
+void getBotLon( const sensor_msgs::NavSatFix& msg )
+{
+	botLon = msg.longitude;
+}
+
+void getBotLat( const sensor_msgs::NavSatFix& msg )
+{
+	botLat = msg.latitude;
 }
