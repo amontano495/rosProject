@@ -1,10 +1,13 @@
 #include <string>
 #include <vector>
+#include <cstdlib>
+#include <ctime>
 #include <csignal>
 #include <boost/thread.hpp>
 #include <ros/ros.h>
 #include <geometry_msgs/TwistStamped.h>
 #include <mavros_msgs/WaypointPush.h>
+#include <mavros_msgs/WaypointPull.h>
 #include <mavros_msgs/OverrideRCIn.h>
 #include <mavros_msgs/SetMode.h>
 #include <mavros_msgs/State.h>
@@ -22,6 +25,7 @@ float randCoord( float high, float low );
 
 int main(int argc, char** argv)
 {
+	srand(static_cast <unsigned> (time(0)));
 	ros::init(argc, argv, "mavros_mission_push");
 
 	ros::Time::init();
@@ -33,32 +37,32 @@ int main(int argc, char** argv)
 	ros::ServiceClient pushClient;
 	mavros_msgs::WaypointPush wayPusher;
 
-	float vertexNEx;
-	float vertexNEy;
-	float vertexSWx;
-	float vertexSWy;
+	float vertexNEx = 39.539152;
+	float vertexNEy = -119.814124;
+	float vertexSWx = 39.537778;
+	float vertexSWy = -119.814219;
 
-	float totalTime;
-
+	int totalTime;
 	int inputSpeed;
-
+	int pause;
+/*
 	ROS_INFO("Enter x coordinate for NE vertex: ");
-	std::cin >> vertexNWx;
+	std::cin >> vertexNEx;
 	ROS_INFO("Enter y coordinate for NE vertex: ");
-	std::cin >> vertexNWy;
+	std::cin >> vertexNEy;
 	ROS_INFO("Enter x coordinate for SW vertex: ");
 	std::cin >> vertexSWx;
 	ROS_INFO("Enter y coordinate for SW vertex: ");
 	std::cin >> vertexSWy;
-
+*/
 	ROS_INFO("Enter time to run: ");
 	std::cin >> totalTime;
 
 	ROS_INFO("Enter desired speed (default is 16): ");
 	std::cin >> inputSpeed;
 
-	//Send waypoints to rover
-	//waypointPusher( wayPusher, pushClient, n, 2, 22, true, true, 15, 0, 0, 0, 39.53915, -119.81411196, 50);
+	ROS_INFO("Enter the pause time ");
+	std::cin >> pause;
 
 	//Update speed using param
 	mavros_msgs::ParamValue steerVal;
@@ -153,14 +157,54 @@ int main(int argc, char** argv)
 	float currentLat;
 	float currentLong;
 
+	time_t endwait;
+	endwait = time(NULL) + totalTime;
+
+	time_t pausewait;
+	currentLat = randCoord( vertexNEy, vertexSWy );
+	currentLong = randCoord( vertexNEx, vertexSWx );
+	std::cout << "Pushed coords: " << currentLong << " , " << currentLat << std::endl;
+	waypointPusher( wayPusher, pushClient, n, 2, 16, true, true, 0, 0, 0, 0, currentLat, currentLong, 50);
+
+	ros::ServiceClient waypointClient = n.serviceClient<mavros_msgs::WaypointPull>("mavros/mission/pull");
+
+	mavros_msgs::WaypointPull::Request req;
+	mavros_msgs::WaypointPull::Response resp;
+	bool clientCallSuccess;
 	//while true loop
-	while(ros::ok())
+	while(time(NULL) < endwait)
 	{
-		currentLat = randCoord( vertexSWx, vertexNEx );
-		currentLong = randCoord( vertexSWy, vertexNEy );
-		waypointPusher( wayPusher, pushClient, n, 2, 16, true, true, 0, 0, 0, 0, currentLat, currentLong, 50);
+		clientCallSuccess = waypointClient.call(req, resp);	
+		//if wp reached, push new random wp
+		if(clientCallSuccess && resp.wp_received < 2 )
+		{
+			maxThrottleVal.integer = 0;
+			maxThrottleSetter.request.value = maxThrottleVal;
+			maxThrottleSetter.request.param_id = "THR_MAX";
+			speedSetSucc = speedClient.call(maxThrottleSetter);
+
+			pausewait = time(NULL) + pause;
+			if(!speedSetSucc)
+				ROS_WARN("WARNING: FAILED TO SET MAX THROTTLE TO 0");
+			while(time(NULL) < pausewait)
+			{
+				ROS_INFO("PAUSING...");
+			}
+			maxThrottleVal.integer = inputSpeed;
+			maxThrottleSetter.request.value = maxThrottleVal;
+			maxThrottleSetter.request.param_id = "THR_MAX";
+			speedSetSucc = speedClient.call(maxThrottleSetter);
+			if(!speedSetSucc)
+				ROS_WARN("WARNING: FAILED TO RESET MAX THROTTLE");
+
+			currentLat = randCoord( vertexNEy, vertexSWy );
+			currentLong = randCoord( vertexNEx, vertexSWx );
+			std::cout << "Pushed coords: " << currentLong << " , " << currentLat << std::endl;
+			waypointPusher( wayPusher, pushClient, n, 2, 16, true, true, 0, 0, 0, 0, currentLat, currentLong, 50);
+		}
 		ros::spinOnce();
 		r.sleep();
+		std::cout << time(NULL) << std::endl;
 	}
 
 	//Activate manual mode
@@ -201,9 +245,9 @@ bool waypointPusher( mavros_msgs::WaypointPush &pusher, ros::ServiceClient clien
 	pusher.request.waypoints.push_back(nextWaypoint);
 
 	if( client.call( pusher) )
-		ROS_INFO_STREAM("PUSHED WAYPOINT. COORDS: %f , %f ". lat, lon);
+		ROS_INFO("PUSHED WAYPOINT");
 	else
-		ROS_INFO_STREAM("PUSH FAILED");
+		ROS_ERROR("PUSH FAILED");
 
 	return client.call(pusher);
 }

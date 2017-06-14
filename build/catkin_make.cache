@@ -1,2 +1,2 @@
-quad:robot_upstart
+quad
 -DCATKIN_DEVEL_PREFIX=/home/erle/quadWS/devel -DCMAKE_INSTALL_PREFIX=/home/erle/quadWS/install -G Unix Makefiles

@@ -308,6 +308,20 @@ quadLap/fast:
 .PHONY : quadLap/fast
 
 # Convenience name for target.
+quad/CMakeFiles/quadRWP.dir/rule:
+	cd /home/erle/quadWS/build && $(MAKE) -f CMakeFiles/Makefile2 quad/CMakeFiles/quadRWP.dir/rule
+.PHONY : quad/CMakeFiles/quadRWP.dir/rule
+
+# Convenience name for target.
+quadRWP: quad/CMakeFiles/quadRWP.dir/rule
+.PHONY : quadRWP
+
+# fast build rule for target.
+quadRWP/fast:
+	cd /home/erle/quadWS/build && $(MAKE) -f quad/CMakeFiles/quadRWP.dir/build.make quad/CMakeFiles/quadRWP.dir/build
+.PHONY : quadRWP/fast
+
+# Convenience name for target.
 quad/CMakeFiles/roscpp_generate_messages_cpp.dir/rule:
 	cd /home/erle/quadWS/build && $(MAKE) -f CMakeFiles/Makefile2 quad/CMakeFiles/roscpp_generate_messages_cpp.dir/rule
 .PHONY : quad/CMakeFiles/roscpp_generate_messages_cpp.dir/rule
@@ -541,6 +555,30 @@ quadLap.cpp.s:
 	cd /home/erle/quadWS/build && $(MAKE) -f quad/CMakeFiles/quadLap.dir/build.make quad/CMakeFiles/quadLap.dir/quadLap.cpp.s
 .PHONY : quadLap.cpp.s
 
+quadRWP.o: quadRWP.cpp.o
+.PHONY : quadRWP.o
+
+# target to build an object file
+quadRWP.cpp.o:
+	cd /home/erle/quadWS/build && $(MAKE) -f quad/CMakeFiles/quadRWP.dir/build.make quad/CMakeFiles/quadRWP.dir/quadRWP.cpp.o
+.PHONY : quadRWP.cpp.o
+
+quadRWP.i: quadRWP.cpp.i
+.PHONY : quadRWP.i
+
+# target to preprocess a source file
+quadRWP.cpp.i:
+	cd /home/erle/quadWS/build && $(MAKE) -f quad/CMakeFiles/quadRWP.dir/build.make quad/CMakeFiles/quadRWP.dir/quadRWP.cpp.i
+.PHONY : quadRWP.cpp.i
+
+quadRWP.s: quadRWP.cpp.s
+.PHONY : quadRWP.s
+
+# target to generate assembly for a file
+quadRWP.cpp.s:
+	cd /home/erle/quadWS/build && $(MAKE) -f quad/CMakeFiles/quadRWP.dir/build.make quad/CMakeFiles/quadRWP.dir/quadRWP.cpp.s
+.PHONY : quadRWP.cpp.s
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -563,6 +601,7 @@ help:
 	@echo "... mavros_msgs_generate_messages_nodejs"
 	@echo "... mavros_msgs_generate_messages_py"
 	@echo "... quadLap"
+	@echo "... quadRWP"
 	@echo "... rebuild_cache"
 	@echo "... roscpp_generate_messages_cpp"
 	@echo "... roscpp_generate_messages_eus"
@@ -583,6 +622,9 @@ help:
 	@echo "... quadLap.o"
 	@echo "... quadLap.i"
 	@echo "... quadLap.s"
+	@echo "... quadRWP.o"
+	@echo "... quadRWP.i"
+	@echo "... quadRWP.s"
 .PHONY : help
 
 

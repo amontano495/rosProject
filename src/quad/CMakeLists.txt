@@ -27,11 +27,16 @@ include_directories(include ${catkin_INCLUDE_DIRS})
 
 add_executable( quadLap quadLap.cpp )
 
-add_executable( quadLap quadRWP.cpp )
+add_executable( quadRWP quadRWP.cpp )
 
 target_link_libraries(quadLap ${catkin_LIBRARIES})
 
+target_link_libraries(quadRWP ${catkin_LIBRARIES})
 
 install(TARGETS quadLap 
+  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
+)
+
+install(TARGETS quadRWP
   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
 )

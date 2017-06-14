@@ -219,188 +219,6 @@ tests/fast:
 .PHONY : tests/fast
 
 #=============================================================================
-# Target rules for targets named _catkin_empty_exported_target
-
-# Build rule for target.
-_catkin_empty_exported_target: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 _catkin_empty_exported_target
-.PHONY : _catkin_empty_exported_target
-
-# fast build rule for target.
-_catkin_empty_exported_target/fast:
-	$(MAKE) -f robot_upstart/CMakeFiles/_catkin_empty_exported_target.dir/build.make robot_upstart/CMakeFiles/_catkin_empty_exported_target.dir/build
-.PHONY : _catkin_empty_exported_target/fast
-
-#=============================================================================
-# Target rules for targets named _run_tests_robot_upstart
-
-# Build rule for target.
-_run_tests_robot_upstart: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 _run_tests_robot_upstart
-.PHONY : _run_tests_robot_upstart
-
-# fast build rule for target.
-_run_tests_robot_upstart/fast:
-	$(MAKE) -f robot_upstart/CMakeFiles/_run_tests_robot_upstart.dir/build.make robot_upstart/CMakeFiles/_run_tests_robot_upstart.dir/build
-.PHONY : _run_tests_robot_upstart/fast
-
-#=============================================================================
-# Target rules for targets named _run_tests_robot_upstart_nosetests
-
-# Build rule for target.
-_run_tests_robot_upstart_nosetests: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 _run_tests_robot_upstart_nosetests
-.PHONY : _run_tests_robot_upstart_nosetests
-
-# fast build rule for target.
-_run_tests_robot_upstart_nosetests/fast:
-	$(MAKE) -f robot_upstart/CMakeFiles/_run_tests_robot_upstart_nosetests.dir/build.make robot_upstart/CMakeFiles/_run_tests_robot_upstart_nosetests.dir/build
-.PHONY : _run_tests_robot_upstart_nosetests/fast
-
-#=============================================================================
-# Target rules for targets named _run_tests_robot_upstart_nosetests_test
-
-# Build rule for target.
-_run_tests_robot_upstart_nosetests_test: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 _run_tests_robot_upstart_nosetests_test
-.PHONY : _run_tests_robot_upstart_nosetests_test
-
-# fast build rule for target.
-_run_tests_robot_upstart_nosetests_test/fast:
-	$(MAKE) -f robot_upstart/CMakeFiles/_run_tests_robot_upstart_nosetests_test.dir/build.make robot_upstart/CMakeFiles/_run_tests_robot_upstart_nosetests_test.dir/build
-.PHONY : _run_tests_robot_upstart_nosetests_test/fast
-
-#=============================================================================
-# Target rules for targets named _run_tests_robot_upstart_roslint
-
-# Build rule for target.
-_run_tests_robot_upstart_roslint: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 _run_tests_robot_upstart_roslint
-.PHONY : _run_tests_robot_upstart_roslint
-
-# fast build rule for target.
-_run_tests_robot_upstart_roslint/fast:
-	$(MAKE) -f robot_upstart/CMakeFiles/_run_tests_robot_upstart_roslint.dir/build.make robot_upstart/CMakeFiles/_run_tests_robot_upstart_roslint.dir/build
-.PHONY : _run_tests_robot_upstart_roslint/fast
-
-#=============================================================================
-# Target rules for targets named _run_tests_robot_upstart_roslint_package
-
-# Build rule for target.
-_run_tests_robot_upstart_roslint_package: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 _run_tests_robot_upstart_roslint_package
-.PHONY : _run_tests_robot_upstart_roslint_package
-
-# fast build rule for target.
-_run_tests_robot_upstart_roslint_package/fast:
-	$(MAKE) -f robot_upstart/CMakeFiles/_run_tests_robot_upstart_roslint_package.dir/build.make robot_upstart/CMakeFiles/_run_tests_robot_upstart_roslint_package.dir/build
-.PHONY : _run_tests_robot_upstart_roslint_package/fast
-
-#=============================================================================
-# Target rules for targets named clean_test_results_robot_upstart
-
-# Build rule for target.
-clean_test_results_robot_upstart: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 clean_test_results_robot_upstart
-.PHONY : clean_test_results_robot_upstart
-
-# fast build rule for target.
-clean_test_results_robot_upstart/fast:
-	$(MAKE) -f robot_upstart/CMakeFiles/clean_test_results_robot_upstart.dir/build.make robot_upstart/CMakeFiles/clean_test_results_robot_upstart.dir/build
-.PHONY : clean_test_results_robot_upstart/fast
-
-#=============================================================================
-# Target rules for targets named roslint
-
-# Build rule for target.
-roslint: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 roslint
-.PHONY : roslint
-
-# fast build rule for target.
-roslint/fast:
-	$(MAKE) -f robot_upstart/CMakeFiles/roslint.dir/build.make robot_upstart/CMakeFiles/roslint.dir/build
-.PHONY : roslint/fast
-
-#=============================================================================
-# Target rules for targets named roslint_robot_upstart
-
-# Build rule for target.
-roslint_robot_upstart: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 roslint_robot_upstart
-.PHONY : roslint_robot_upstart
-
-# fast build rule for target.
-roslint_robot_upstart/fast:
-	$(MAKE) -f robot_upstart/CMakeFiles/roslint_robot_upstart.dir/build.make robot_upstart/CMakeFiles/roslint_robot_upstart.dir/build
-.PHONY : roslint_robot_upstart/fast
-
-#=============================================================================
-# Target rules for targets named run_tests_robot_upstart
-
-# Build rule for target.
-run_tests_robot_upstart: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 run_tests_robot_upstart
-.PHONY : run_tests_robot_upstart
-
-# fast build rule for target.
-run_tests_robot_upstart/fast:
-	$(MAKE) -f robot_upstart/CMakeFiles/run_tests_robot_upstart.dir/build.make robot_upstart/CMakeFiles/run_tests_robot_upstart.dir/build
-.PHONY : run_tests_robot_upstart/fast
-
-#=============================================================================
-# Target rules for targets named run_tests_robot_upstart_nosetests
-
-# Build rule for target.
-run_tests_robot_upstart_nosetests: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 run_tests_robot_upstart_nosetests
-.PHONY : run_tests_robot_upstart_nosetests
-
-# fast build rule for target.
-run_tests_robot_upstart_nosetests/fast:
-	$(MAKE) -f robot_upstart/CMakeFiles/run_tests_robot_upstart_nosetests.dir/build.make robot_upstart/CMakeFiles/run_tests_robot_upstart_nosetests.dir/build
-.PHONY : run_tests_robot_upstart_nosetests/fast
-
-#=============================================================================
-# Target rules for targets named run_tests_robot_upstart_nosetests_test
-
-# Build rule for target.
-run_tests_robot_upstart_nosetests_test: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 run_tests_robot_upstart_nosetests_test
-.PHONY : run_tests_robot_upstart_nosetests_test
-
-# fast build rule for target.
-run_tests_robot_upstart_nosetests_test/fast:
-	$(MAKE) -f robot_upstart/CMakeFiles/run_tests_robot_upstart_nosetests_test.dir/build.make robot_upstart/CMakeFiles/run_tests_robot_upstart_nosetests_test.dir/build
-.PHONY : run_tests_robot_upstart_nosetests_test/fast
-
-#=============================================================================
-# Target rules for targets named run_tests_robot_upstart_roslint
-
-# Build rule for target.
-run_tests_robot_upstart_roslint: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 run_tests_robot_upstart_roslint
-.PHONY : run_tests_robot_upstart_roslint
-
-# fast build rule for target.
-run_tests_robot_upstart_roslint/fast:
-	$(MAKE) -f robot_upstart/CMakeFiles/run_tests_robot_upstart_roslint.dir/build.make robot_upstart/CMakeFiles/run_tests_robot_upstart_roslint.dir/build
-.PHONY : run_tests_robot_upstart_roslint/fast
-
-#=============================================================================
-# Target rules for targets named run_tests_robot_upstart_roslint_package
-
-# Build rule for target.
-run_tests_robot_upstart_roslint_package: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 run_tests_robot_upstart_roslint_package
-.PHONY : run_tests_robot_upstart_roslint_package
-
-# fast build rule for target.
-run_tests_robot_upstart_roslint_package/fast:
-	$(MAKE) -f robot_upstart/CMakeFiles/run_tests_robot_upstart_roslint_package.dir/build.make robot_upstart/CMakeFiles/run_tests_robot_upstart_roslint_package.dir/build
-.PHONY : run_tests_robot_upstart_roslint_package/fast
-
-#=============================================================================
 # Target rules for targets named geometry_msgs_generate_messages_cpp
 
 # Build rule for target.
@@ -542,6 +360,19 @@ quadLap: cmake_check_build_system
 quadLap/fast:
 	$(MAKE) -f quad/CMakeFiles/quadLap.dir/build.make quad/CMakeFiles/quadLap.dir/build
 .PHONY : quadLap/fast
+
+#=============================================================================
+# Target rules for targets named quadRWP
+
+# Build rule for target.
+quadRWP: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 quadRWP
+.PHONY : quadRWP
+
+# fast build rule for target.
+quadRWP/fast:
+	$(MAKE) -f quad/CMakeFiles/quadRWP.dir/build.make quad/CMakeFiles/quadRWP.dir/build
+.PHONY : quadRWP/fast
 
 #=============================================================================
 # Target rules for targets named roscpp_generate_messages_cpp
@@ -756,20 +587,6 @@ help:
 	@echo "... run_tests"
 	@echo "... test"
 	@echo "... tests"
-	@echo "... _catkin_empty_exported_target"
-	@echo "... _run_tests_robot_upstart"
-	@echo "... _run_tests_robot_upstart_nosetests"
-	@echo "... _run_tests_robot_upstart_nosetests_test"
-	@echo "... _run_tests_robot_upstart_roslint"
-	@echo "... _run_tests_robot_upstart_roslint_package"
-	@echo "... clean_test_results_robot_upstart"
-	@echo "... roslint"
-	@echo "... roslint_robot_upstart"
-	@echo "... run_tests_robot_upstart"
-	@echo "... run_tests_robot_upstart_nosetests"
-	@echo "... run_tests_robot_upstart_nosetests_test"
-	@echo "... run_tests_robot_upstart_roslint"
-	@echo "... run_tests_robot_upstart_roslint_package"
 	@echo "... geometry_msgs_generate_messages_cpp"
 	@echo "... geometry_msgs_generate_messages_eus"
 	@echo "... geometry_msgs_generate_messages_lisp"
@@ -781,6 +598,7 @@ help:
 	@echo "... mavros_msgs_generate_messages_nodejs"
 	@echo "... mavros_msgs_generate_messages_py"
 	@echo "... quadLap"
+	@echo "... quadRWP"
 	@echo "... roscpp_generate_messages_cpp"
 	@echo "... roscpp_generate_messages_eus"
 	@echo "... roscpp_generate_messages_lisp"
