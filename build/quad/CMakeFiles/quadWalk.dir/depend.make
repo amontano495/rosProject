@@ -19,16 +19,6 @@ quad/CMakeFiles/quadWalk.dir/quadWalk.cpp.o: /opt/ros/kinetic/include/geometry_m
 quad/CMakeFiles/quadWalk.dir/quadWalk.cpp.o: /opt/ros/kinetic/include/geometry_msgs/Vector3.h
 quad/CMakeFiles/quadWalk.dir/quadWalk.cpp.o: /opt/ros/kinetic/include/geometry_msgs/Vector3Stamped.h
 quad/CMakeFiles/quadWalk.dir/quadWalk.cpp.o: /opt/ros/kinetic/include/mavros_msgs/OverrideRCIn.h
-quad/CMakeFiles/quadWalk.dir/quadWalk.cpp.o: /opt/ros/kinetic/include/mavros_msgs/ParamGet.h
-quad/CMakeFiles/quadWalk.dir/quadWalk.cpp.o: /opt/ros/kinetic/include/mavros_msgs/ParamGetRequest.h
-quad/CMakeFiles/quadWalk.dir/quadWalk.cpp.o: /opt/ros/kinetic/include/mavros_msgs/ParamGetResponse.h
-quad/CMakeFiles/quadWalk.dir/quadWalk.cpp.o: /opt/ros/kinetic/include/mavros_msgs/ParamPush.h
-quad/CMakeFiles/quadWalk.dir/quadWalk.cpp.o: /opt/ros/kinetic/include/mavros_msgs/ParamPushRequest.h
-quad/CMakeFiles/quadWalk.dir/quadWalk.cpp.o: /opt/ros/kinetic/include/mavros_msgs/ParamPushResponse.h
-quad/CMakeFiles/quadWalk.dir/quadWalk.cpp.o: /opt/ros/kinetic/include/mavros_msgs/ParamSet.h
-quad/CMakeFiles/quadWalk.dir/quadWalk.cpp.o: /opt/ros/kinetic/include/mavros_msgs/ParamSetRequest.h
-quad/CMakeFiles/quadWalk.dir/quadWalk.cpp.o: /opt/ros/kinetic/include/mavros_msgs/ParamSetResponse.h
-quad/CMakeFiles/quadWalk.dir/quadWalk.cpp.o: /opt/ros/kinetic/include/mavros_msgs/ParamValue.h
 quad/CMakeFiles/quadWalk.dir/quadWalk.cpp.o: /opt/ros/kinetic/include/mavros_msgs/SetMode.h
 quad/CMakeFiles/quadWalk.dir/quadWalk.cpp.o: /opt/ros/kinetic/include/mavros_msgs/SetModeRequest.h
 quad/CMakeFiles/quadWalk.dir/quadWalk.cpp.o: /opt/ros/kinetic/include/mavros_msgs/SetModeResponse.h

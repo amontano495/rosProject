@@ -111,7 +111,7 @@ int main(int argc, char** argv)
 			ROS_INFO("PAUSING...");
 			while(time(NULL) < pausewait)
 			{
-				//ROS_INFO("PAUSING...");
+				//do nothing
 			}
 			erleInit(16, n);
 			currentLat = randCoord( vertexNEy, vertexSWy );

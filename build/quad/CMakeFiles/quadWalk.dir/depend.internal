@@ -20,16 +20,6 @@ quad/CMakeFiles/quadWalk.dir/quadWalk.cpp.o
  /opt/ros/kinetic/include/geometry_msgs/Vector3.h
  /opt/ros/kinetic/include/geometry_msgs/Vector3Stamped.h
  /opt/ros/kinetic/include/mavros_msgs/OverrideRCIn.h
- /opt/ros/kinetic/include/mavros_msgs/ParamGet.h
- /opt/ros/kinetic/include/mavros_msgs/ParamGetRequest.h
- /opt/ros/kinetic/include/mavros_msgs/ParamGetResponse.h
- /opt/ros/kinetic/include/mavros_msgs/ParamPush.h
- /opt/ros/kinetic/include/mavros_msgs/ParamPushRequest.h
- /opt/ros/kinetic/include/mavros_msgs/ParamPushResponse.h
- /opt/ros/kinetic/include/mavros_msgs/ParamSet.h
- /opt/ros/kinetic/include/mavros_msgs/ParamSetRequest.h
- /opt/ros/kinetic/include/mavros_msgs/ParamSetResponse.h
- /opt/ros/kinetic/include/mavros_msgs/ParamValue.h
  /opt/ros/kinetic/include/mavros_msgs/SetMode.h
  /opt/ros/kinetic/include/mavros_msgs/SetModeRequest.h
  /opt/ros/kinetic/include/mavros_msgs/SetModeResponse.h
