@@ -165,6 +165,7 @@ set(CMAKE_DEPEND_INFO_FILES
   "quad/CMakeFiles/mavros_msgs_generate_messages_py.dir/DependInfo.cmake"
   "quad/CMakeFiles/quadLap.dir/DependInfo.cmake"
   "quad/CMakeFiles/quadRWP.dir/DependInfo.cmake"
+  "quad/CMakeFiles/quadWalk.dir/DependInfo.cmake"
   "quad/CMakeFiles/roscpp_generate_messages_cpp.dir/DependInfo.cmake"
   "quad/CMakeFiles/roscpp_generate_messages_eus.dir/DependInfo.cmake"
   "quad/CMakeFiles/roscpp_generate_messages_lisp.dir/DependInfo.cmake"

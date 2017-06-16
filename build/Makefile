@@ -375,6 +375,19 @@ quadRWP/fast:
 .PHONY : quadRWP/fast
 
 #=============================================================================
+# Target rules for targets named quadWalk
+
+# Build rule for target.
+quadWalk: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 quadWalk
+.PHONY : quadWalk
+
+# fast build rule for target.
+quadWalk/fast:
+	$(MAKE) -f quad/CMakeFiles/quadWalk.dir/build.make quad/CMakeFiles/quadWalk.dir/build
+.PHONY : quadWalk/fast
+
+#=============================================================================
 # Target rules for targets named roscpp_generate_messages_cpp
 
 # Build rule for target.
@@ -599,6 +612,7 @@ help:
 	@echo "... mavros_msgs_generate_messages_py"
 	@echo "... quadLap"
 	@echo "... quadRWP"
+	@echo "... quadWalk"
 	@echo "... roscpp_generate_messages_cpp"
 	@echo "... roscpp_generate_messages_eus"
 	@echo "... roscpp_generate_messages_lisp"
