@@ -1,4 +1,5 @@
 #include <string>
+#include <math.h>
 #include <vector>
 #include <cstdlib>
 #include <ctime>
@@ -27,11 +28,17 @@ void getBotQ( const sensor_msgs::Imu &msg );
 
 double radsToDeg( double rad );
 
+int getQuadrant( double angle );
+
+int getDirection( int quad1, int quad2 );
+
 int main(int argc, char** argv)
 {
 	//Initial ROS settings
 	ros::init(argc, argv, "erle_rand_walker");
 	ros::NodeHandle n;
+	int rate = 10;
+	ros::Rate r(rate);
 
 	time_t moveTime;
 
@@ -41,50 +48,149 @@ int main(int argc, char** argv)
 	double yaw_degrees;
 	double newDirection;
 
+	bool quatNormalFlag = false;
+
+	ros::Publisher rcOverridePub = n.advertise<mavros_msgs::OverrideRCIn>("/mavros/rc/override", 1 );
+	mavros_msgs::OverrideRCIn msg_override;
+
 	ros::Subscriber sub = n.subscribe("/mavros/imu/data", 1000, &getBotQ);
 	setBotMode( "MANUAL" , n );
 
 	while(ros::ok())
 	{
+		newDirection = rand() % 360;
+
 		yaw = tf::getYaw( botQ );
 		yaw_degrees = radsToDeg( yaw );
 
-		newDirection = rand() % 360;
-		ROS_INFO_STREAM("NEW DIRECTION: " << newDirection );
-
-		if( newDirection > 0 && newDirection < 180 )
+		if( isnan(yaw_degrees) == 0 && !quatNormalFlag )
 		{
-			ROS_INFO("TURNING...");
-			//Force wheels right
-			while( (int)newDirection != (int)yaw_degrees )
-			{
-				ROS_INFO_STREAM("BOT DEG: " << yaw_degrees << ", TARGET DEG: " << newDirection );
-				//reverse
-			}
-			ROS_INFO("TURNING COMPLETED");
+			quatNormalFlag = true;
 		}
 
-		if( newDirection > 180 && newDirection < 360 )
+		if( quatNormalFlag )
 		{
-			ROS_INFO("TURNING...");
-			//Force wheels left
-			while( (int)newDirection != (int)yaw_degrees )
+			if( getDirection( getQuadrant(yaw_degrees) , getQuadrant(newDirection) ) == 1 ||
+				(getDirection( getQuadrant(yaw_degrees) , getQuadrant(newDirection) ) == 2 && newDirection > yaw_degrees) )
 			{
-				ROS_INFO_STREAM("BOT DEG: " << yaw_degrees << ", TARGET DEG: " << newDirection );
-				//reverse
+				ROS_INFO("TURNING RIGHT...");
+				//Force wheels right
+				msg_override.channels[0] = 1100;
+				rcOverridePub.publish(msg_override);
+				ros::spinOnce();
+				while( (int)newDirection != (int)yaw_degrees )
+				{
+					yaw = tf::getYaw( botQ );
+					yaw_degrees = radsToDeg( yaw );
+					ROS_INFO_STREAM("BOT DEG: " << yaw_degrees << ", TARGET DEG: " << newDirection );
+					//reverse
+					msg_override.channels[2] = 1552;
+					rcOverridePub.publish(msg_override);
+					ros::spinOnce();
+					r.sleep();
+				}
+				ROS_INFO("TURNING COMPLETED");
 			}
-			ROS_INFO("TURNING COMPLETED");
+
+			if( getDirection( getQuadrant(yaw_degrees) , getQuadrant(newDirection) ) == 0 ||
+				(getDirection( getQuadrant(yaw_degrees) , getQuadrant(newDirection) ) == 2 && newDirection < yaw_degrees) )
+			{
+				ROS_INFO("TURNING LEFT...");
+				//Force wheels left
+				msg_override.channels[0] = 1900;
+				rcOverridePub.publish(msg_override);
+				ros::spinOnce();
+				while( (int)newDirection != (int)yaw_degrees )
+				{
+					yaw = tf::getYaw( botQ );
+					yaw_degrees = radsToDeg( yaw );
+					ROS_INFO_STREAM("BOT DEG: " << yaw_degrees << ", TARGET DEG: " << newDirection );
+					//reverse
+					msg_override.channels[2] = 1552;
+					rcOverridePub.publish(msg_override);
+					ros::spinOnce();
+					r.sleep();
+				}
+				ROS_INFO("TURNING COMPLETED");
+			}
+
+			
+
+			msg_override.channels[0] = 1500;
+			rcOverridePub.publish(msg_override);
+			ros::spinOnce();
+
+			ROS_INFO("MOVING...");
+			moveTime = time(NULL) + 2;
+			while( time(NULL) < moveTime && quatNormalFlag )
+			{
+/*
+				//forward
+				msg_override.channels[2] = 1425;
+				rcOverridePub.publish(msg_override);
+				ros::spinOnce();
+				r.sleep();
+*/
+			}	
 		}
 
-		ROS_INFO("MOVING...");
-		moveTime = time(NULL) + 5;
-		while( time(NULL) < moveTime )
-		{
-			//forward
-		}	
 		ros::spinOnce();
 	}
 
+	return 0;
+}
+
+int getDirection( int quad1, int quad2 )
+{
+	ROS_INFO_STREAM("QUADRANT 1: " << quad1 << ", QUADRANT 2: " << quad2 );
+	if(quad1 == 1)
+	{
+		if(quad2 == 4)
+			return 1;
+		else 
+			return 0;
+	}
+
+	else if(quad1 == 2)
+	{
+		if(quad2 == 1)
+			return 1;
+		else
+			return 0;
+	}
+	else if(quad1 == 3)
+	{
+		if(quad2 == 2)
+			return 1;
+		else
+			return 0;
+	}
+	else if(quad1 == 4)
+	{
+		if(quad2 == 3)
+			return 1;
+		else
+			return 0;
+	}
+	else if(quad1 == quad2)
+		return 2;
+
+	return 1;
+}
+
+int getQuadrant( double angle )
+{
+	double intpart;
+	double decimalPart = modf((angle / 360), &intpart);
+
+	if( 0.0 < decimalPart && decimalPart < 0.25 )
+		return 1;
+	else if( 0.25 < decimalPart && decimalPart < 0.5 )
+		return 2;
+	else if( 0.5 < decimalPart && decimalPart < 0.75 )
+		return 3;
+	else if( 0.75 < decimalPart && decimalPart < 1.0 )
+		return 4;
 	return 0;
 }
 

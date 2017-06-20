@@ -9,6 +9,8 @@
 /home/erle/quadWS/src/quad/quadWalk.cpp
 string
 -
+math.h
+-
 vector
 -
 cstdlib
