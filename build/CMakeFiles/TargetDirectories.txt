@@ -11,6 +11,7 @@
 /home/erle/quadWS/build/quad/CMakeFiles/mavros_msgs_generate_messages_lisp.dir
 /home/erle/quadWS/build/quad/CMakeFiles/mavros_msgs_generate_messages_nodejs.dir
 /home/erle/quadWS/build/quad/CMakeFiles/mavros_msgs_generate_messages_py.dir
+/home/erle/quadWS/build/quad/CMakeFiles/quadDirection.dir
 /home/erle/quadWS/build/quad/CMakeFiles/quadLap.dir
 /home/erle/quadWS/build/quad/CMakeFiles/quadRWP.dir
 /home/erle/quadWS/build/quad/CMakeFiles/quadWalk.dir

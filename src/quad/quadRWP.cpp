@@ -29,17 +29,15 @@ bool waypointPusher( mavros_msgs::WaypointPush &pusher, ros::ServiceClient clien
 
 double randCoord( double high, double low );
 
-bool erleInit(int speed, ros::NodeHandle &node );
+bool erleInit( int speed, ros::NodeHandle &node );
 
 void setBotMode( std::string mode, ros::NodeHandle &node );
 
 int getWaypointAmt( ros::NodeHandle &node );
 
-void getBotLon( const sensor_msgs::NavSatFix& msg );
+void getBotCoords( const sensor_msgs::NavSatFix& msg );
 
-void getBotLat( const sensor_msgs::NavSatFix& msg );
-
-int main(int argc, char** argv)
+int main( int argc, char** argv )
 {
 	//Initial ROS settings
 	srand(static_cast <unsigned> (time(0)));
@@ -96,8 +94,7 @@ int main(int argc, char** argv)
 	time_t pausewait;
 	endwait = time(NULL) + totalTime;
 	
-	ros::Subscriber gpsSub1 = n.subscribe("global_position/global", 1000, &getBotLon);
-	ros::Subscriber gpsSub2 = n.subscribe("global_position/global", 1000, &getBotLat);
+	ros::Subscriber gpsSub1 = n.subscribe("/mavros/global_position/global", 1000, &getBotCoords);
 
 	//while true loop
 	while(time(NULL) < endwait)
@@ -277,12 +274,8 @@ int getWaypointAmt( ros::NodeHandle &node )
 	return resp.wp_received;
 }
 
-void getBotLon( const sensor_msgs::NavSatFix& msg )
+void getBotCoords( const sensor_msgs::NavSatFix& msg )
 {
 	botLon = msg.longitude;
-}
-
-void getBotLat( const sensor_msgs::NavSatFix& msg )
-{
 	botLat = msg.latitude;
 }

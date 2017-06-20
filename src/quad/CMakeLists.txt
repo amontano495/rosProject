@@ -31,11 +31,15 @@ add_executable( quadRWP quadRWP.cpp )
 
 add_executable( quadWalk quadWalk.cpp )
 
+add_executable( quadDirection quadDirection.cpp )
+
 target_link_libraries(quadLap ${catkin_LIBRARIES})
 
 target_link_libraries(quadRWP ${catkin_LIBRARIES})
 
 target_link_libraries(quadWalk ${catkin_LIBRARIES})
+
+target_link_libraries(quadDirection ${catkin_LIBRARIES})
 
 install(TARGETS quadLap 
   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
@@ -46,5 +50,9 @@ install(TARGETS quadRWP
 )
 
 install(TARGETS quadWalk
+  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
+)
+
+install(TARGETS quadDirection
   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
 )

@@ -78,6 +78,8 @@ quad/CMakeFiles/quadWalk.dir/quadWalk.cpp.o: /opt/ros/kinetic/include/ros/wall_t
 quad/CMakeFiles/quadWalk.dir/quadWalk.cpp.o: /opt/ros/kinetic/include/ros/wall_timer_options.h
 quad/CMakeFiles/quadWalk.dir/quadWalk.cpp.o: /opt/ros/kinetic/include/rosconsole/macros_generated.h
 quad/CMakeFiles/quadWalk.dir/quadWalk.cpp.o: /opt/ros/kinetic/include/sensor_msgs/Imu.h
+quad/CMakeFiles/quadWalk.dir/quadWalk.cpp.o: /opt/ros/kinetic/include/sensor_msgs/NavSatFix.h
+quad/CMakeFiles/quadWalk.dir/quadWalk.cpp.o: /opt/ros/kinetic/include/sensor_msgs/NavSatStatus.h
 quad/CMakeFiles/quadWalk.dir/quadWalk.cpp.o: /opt/ros/kinetic/include/std_msgs/Float64.h
 quad/CMakeFiles/quadWalk.dir/quadWalk.cpp.o: /opt/ros/kinetic/include/std_msgs/Header.h
 quad/CMakeFiles/quadWalk.dir/quadWalk.cpp.o: /opt/ros/kinetic/include/tf/LinearMath/Matrix3x3.h

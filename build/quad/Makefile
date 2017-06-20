@@ -294,6 +294,20 @@ mavros_msgs_generate_messages_py/fast:
 .PHONY : mavros_msgs_generate_messages_py/fast
 
 # Convenience name for target.
+quad/CMakeFiles/quadDirection.dir/rule:
+	cd /home/erle/quadWS/build && $(MAKE) -f CMakeFiles/Makefile2 quad/CMakeFiles/quadDirection.dir/rule
+.PHONY : quad/CMakeFiles/quadDirection.dir/rule
+
+# Convenience name for target.
+quadDirection: quad/CMakeFiles/quadDirection.dir/rule
+.PHONY : quadDirection
+
+# fast build rule for target.
+quadDirection/fast:
+	cd /home/erle/quadWS/build && $(MAKE) -f quad/CMakeFiles/quadDirection.dir/build.make quad/CMakeFiles/quadDirection.dir/build
+.PHONY : quadDirection/fast
+
+# Convenience name for target.
 quad/CMakeFiles/quadLap.dir/rule:
 	cd /home/erle/quadWS/build && $(MAKE) -f CMakeFiles/Makefile2 quad/CMakeFiles/quadLap.dir/rule
 .PHONY : quad/CMakeFiles/quadLap.dir/rule
@@ -545,6 +559,30 @@ std_msgs_generate_messages_py/fast:
 	cd /home/erle/quadWS/build && $(MAKE) -f quad/CMakeFiles/std_msgs_generate_messages_py.dir/build.make quad/CMakeFiles/std_msgs_generate_messages_py.dir/build
 .PHONY : std_msgs_generate_messages_py/fast
 
+quadDirection.o: quadDirection.cpp.o
+.PHONY : quadDirection.o
+
+# target to build an object file
+quadDirection.cpp.o:
+	cd /home/erle/quadWS/build && $(MAKE) -f quad/CMakeFiles/quadDirection.dir/build.make quad/CMakeFiles/quadDirection.dir/quadDirection.cpp.o
+.PHONY : quadDirection.cpp.o
+
+quadDirection.i: quadDirection.cpp.i
+.PHONY : quadDirection.i
+
+# target to preprocess a source file
+quadDirection.cpp.i:
+	cd /home/erle/quadWS/build && $(MAKE) -f quad/CMakeFiles/quadDirection.dir/build.make quad/CMakeFiles/quadDirection.dir/quadDirection.cpp.i
+.PHONY : quadDirection.cpp.i
+
+quadDirection.s: quadDirection.cpp.s
+.PHONY : quadDirection.s
+
+# target to generate assembly for a file
+quadDirection.cpp.s:
+	cd /home/erle/quadWS/build && $(MAKE) -f quad/CMakeFiles/quadDirection.dir/build.make quad/CMakeFiles/quadDirection.dir/quadDirection.cpp.s
+.PHONY : quadDirection.cpp.s
+
 quadLap.o: quadLap.cpp.o
 .PHONY : quadLap.o
 
@@ -638,6 +676,7 @@ help:
 	@echo "... mavros_msgs_generate_messages_lisp"
 	@echo "... mavros_msgs_generate_messages_nodejs"
 	@echo "... mavros_msgs_generate_messages_py"
+	@echo "... quadDirection"
 	@echo "... quadLap"
 	@echo "... quadRWP"
 	@echo "... quadWalk"
@@ -658,6 +697,9 @@ help:
 	@echo "... std_msgs_generate_messages_nodejs"
 	@echo "... std_msgs_generate_messages_py"
 	@echo "... test"
+	@echo "... quadDirection.o"
+	@echo "... quadDirection.i"
+	@echo "... quadDirection.s"
 	@echo "... quadLap.o"
 	@echo "... quadLap.i"
 	@echo "... quadLap.s"

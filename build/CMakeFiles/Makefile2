@@ -211,6 +211,7 @@ clean: CMakeFiles/tests.dir/clean
 # Directory level rules for directory quad
 
 # Convenience name for "all" pass in the directory.
+quad/all: quad/CMakeFiles/quadDirection.dir/all
 quad/all: quad/CMakeFiles/quadLap.dir/all
 quad/all: quad/CMakeFiles/quadRWP.dir/all
 quad/all: quad/CMakeFiles/quadWalk.dir/all
@@ -227,6 +228,7 @@ quad/clean: quad/CMakeFiles/mavros_msgs_generate_messages_eus.dir/clean
 quad/clean: quad/CMakeFiles/mavros_msgs_generate_messages_lisp.dir/clean
 quad/clean: quad/CMakeFiles/mavros_msgs_generate_messages_nodejs.dir/clean
 quad/clean: quad/CMakeFiles/mavros_msgs_generate_messages_py.dir/clean
+quad/clean: quad/CMakeFiles/quadDirection.dir/clean
 quad/clean: quad/CMakeFiles/quadLap.dir/clean
 quad/clean: quad/CMakeFiles/quadRWP.dir/clean
 quad/clean: quad/CMakeFiles/quadWalk.dir/clean
@@ -562,13 +564,48 @@ clean: quad/CMakeFiles/mavros_msgs_generate_messages_py.dir/clean
 .PHONY : clean
 
 #=============================================================================
+# Target rules for target quad/CMakeFiles/quadDirection.dir
+
+# All Build rule for target.
+quad/CMakeFiles/quadDirection.dir/all:
+	$(MAKE) -f quad/CMakeFiles/quadDirection.dir/build.make quad/CMakeFiles/quadDirection.dir/depend
+	$(MAKE) -f quad/CMakeFiles/quadDirection.dir/build.make quad/CMakeFiles/quadDirection.dir/build
+	$(CMAKE_COMMAND) -E cmake_progress_report /home/erle/quadWS/build/CMakeFiles  1
+	@echo "Built target quadDirection"
+.PHONY : quad/CMakeFiles/quadDirection.dir/all
+
+# Include target in all.
+all: quad/CMakeFiles/quadDirection.dir/all
+.PHONY : all
+
+# Build rule for subdir invocation for target.
+quad/CMakeFiles/quadDirection.dir/rule: cmake_check_build_system
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/erle/quadWS/build/CMakeFiles 1
+	$(MAKE) -f CMakeFiles/Makefile2 quad/CMakeFiles/quadDirection.dir/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/erle/quadWS/build/CMakeFiles 0
+.PHONY : quad/CMakeFiles/quadDirection.dir/rule
+
+# Convenience name for target.
+quadDirection: quad/CMakeFiles/quadDirection.dir/rule
+.PHONY : quadDirection
+
+# clean rule for target.
+quad/CMakeFiles/quadDirection.dir/clean:
+	$(MAKE) -f quad/CMakeFiles/quadDirection.dir/build.make quad/CMakeFiles/quadDirection.dir/clean
+.PHONY : quad/CMakeFiles/quadDirection.dir/clean
+
+# clean rule for target.
+clean: quad/CMakeFiles/quadDirection.dir/clean
+.PHONY : clean
+
+#=============================================================================
 # Target rules for target quad/CMakeFiles/quadLap.dir
 
 # All Build rule for target.
 quad/CMakeFiles/quadLap.dir/all:
 	$(MAKE) -f quad/CMakeFiles/quadLap.dir/build.make quad/CMakeFiles/quadLap.dir/depend
 	$(MAKE) -f quad/CMakeFiles/quadLap.dir/build.make quad/CMakeFiles/quadLap.dir/build
-	$(CMAKE_COMMAND) -E cmake_progress_report /home/erle/quadWS/build/CMakeFiles  1
+	$(CMAKE_COMMAND) -E cmake_progress_report /home/erle/quadWS/build/CMakeFiles  2
 	@echo "Built target quadLap"
 .PHONY : quad/CMakeFiles/quadLap.dir/all
 
@@ -603,7 +640,7 @@ clean: quad/CMakeFiles/quadLap.dir/clean
 quad/CMakeFiles/quadRWP.dir/all:
 	$(MAKE) -f quad/CMakeFiles/quadRWP.dir/build.make quad/CMakeFiles/quadRWP.dir/depend
 	$(MAKE) -f quad/CMakeFiles/quadRWP.dir/build.make quad/CMakeFiles/quadRWP.dir/build
-	$(CMAKE_COMMAND) -E cmake_progress_report /home/erle/quadWS/build/CMakeFiles  2
+	$(CMAKE_COMMAND) -E cmake_progress_report /home/erle/quadWS/build/CMakeFiles  3
 	@echo "Built target quadRWP"
 .PHONY : quad/CMakeFiles/quadRWP.dir/all
 
@@ -638,7 +675,7 @@ clean: quad/CMakeFiles/quadRWP.dir/clean
 quad/CMakeFiles/quadWalk.dir/all:
 	$(MAKE) -f quad/CMakeFiles/quadWalk.dir/build.make quad/CMakeFiles/quadWalk.dir/depend
 	$(MAKE) -f quad/CMakeFiles/quadWalk.dir/build.make quad/CMakeFiles/quadWalk.dir/build
-	$(CMAKE_COMMAND) -E cmake_progress_report /home/erle/quadWS/build/CMakeFiles  3
+	$(CMAKE_COMMAND) -E cmake_progress_report /home/erle/quadWS/build/CMakeFiles  4
 	@echo "Built target quadWalk"
 .PHONY : quad/CMakeFiles/quadWalk.dir/all
 

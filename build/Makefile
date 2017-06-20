@@ -349,6 +349,19 @@ mavros_msgs_generate_messages_py/fast:
 .PHONY : mavros_msgs_generate_messages_py/fast
 
 #=============================================================================
+# Target rules for targets named quadDirection
+
+# Build rule for target.
+quadDirection: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 quadDirection
+.PHONY : quadDirection
+
+# fast build rule for target.
+quadDirection/fast:
+	$(MAKE) -f quad/CMakeFiles/quadDirection.dir/build.make quad/CMakeFiles/quadDirection.dir/build
+.PHONY : quadDirection/fast
+
+#=============================================================================
 # Target rules for targets named quadLap
 
 # Build rule for target.
@@ -610,6 +623,7 @@ help:
 	@echo "... mavros_msgs_generate_messages_lisp"
 	@echo "... mavros_msgs_generate_messages_nodejs"
 	@echo "... mavros_msgs_generate_messages_py"
+	@echo "... quadDirection"
 	@echo "... quadLap"
 	@echo "... quadRWP"
 	@echo "... quadWalk"
