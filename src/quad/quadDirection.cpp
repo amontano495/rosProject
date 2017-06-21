@@ -76,7 +76,7 @@ int main(int argc, char** argv)
 		{
 			ROS_INFO("TURNING RIGHT...");
 			//Force wheels right
-			msg_override.channels[0] = 1100;
+			msg_override.channels[0] = 2000;
 			rcOverridePub.publish(msg_override);
 			ros::spinOnce();
 
@@ -96,7 +96,7 @@ int main(int argc, char** argv)
 		{
 			ROS_INFO("TURNING LEFT...");
 			//Force wheels left
-			msg_override.channels[0] = 1900;
+			msg_override.channels[0] = 1000;
 			rcOverridePub.publish(msg_override);
 			ros::spinOnce();
 

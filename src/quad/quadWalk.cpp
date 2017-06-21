@@ -62,10 +62,10 @@ int main(int argc, char** argv)
 	int inputMoveTime = atoi(argv[1]);
 
 	//Represents two vertices of opposite corners of a square
-	double boundaryNElat = 39.539152;
-	double boundaryNElon = -119.814124;
-	double boundarySWlat = 39.537778;
-	double boundarySWlon = -119.814219;
+	double boundaryNElat = 39.539262;
+	double boundaryNElon = -119.81433;
+	double boundarySWlat = 39.539148;
+	double boundarySWlon = -119.814496;
 
 	//Sets robot to "MANUAL" mode
 	setBotMode( "MANUAL" , n );
@@ -79,7 +79,7 @@ int main(int argc, char** argv)
 		{
 			ROS_INFO("TURNING RIGHT...");
 			//Force wheels right
-			msg_override.channels[0] = 1100;
+			msg_override.channels[0] = 2000;
 			rcOverridePub.publish(msg_override);
 			ros::spinOnce();
 
@@ -99,7 +99,7 @@ int main(int argc, char** argv)
 		{
 			ROS_INFO("TURNING LEFT...");
 			//Force wheels left
-			msg_override.channels[0] = 1900;
+			msg_override.channels[0] = 1000;
 			rcOverridePub.publish(msg_override);
 			ros::spinOnce();
 
@@ -117,14 +117,14 @@ int main(int argc, char** argv)
 
 		
 		//return wheels to forward position
-		msg_override.channels[0] = 1500;
+		msg_override.channels[0] = 1400;
 		rcOverridePub.publish(msg_override);
 		ros::spinOnce();
 
 		//move forward for fixed time or until out of bounds
 		ROS_INFO("MOVING...");
 		moveTime = time(NULL) + inputMoveTime;
-		while( time(NULL) < moveTime || boundaryCheck(boundaryNElat, boundaryNElon, boundarySWlat, boundarySWlon) )
+		while( time(NULL) < moveTime || boundaryCheck(boundarySWlat, boundarySWlon, boundaryNElat, boundaryNElon) )
 		{
 			//forward
 			msg_override.channels[2] = 1425;
@@ -141,18 +141,12 @@ int main(int argc, char** argv)
 
 bool boundaryCheck( double V1lat, double V1lon, double V2lat, double V2lon )
 {
-	bool botWithinBoundary = true;
-	if(V2lat < botLat && botLat < V1lat )
-	{
-		if( V2lon < botLon && botLon < V1lon )
-			botWithinBoundary = true;
-		else
-			botWithinBoundary = false;
-	}
+	bool botWithinBoundary;
+
+	if( (V1lat < botLat && botLat < V2lat) && (V1lon < botLon && botLon < V2lon) )
+		botWithinBoundary = true;
 	else
-	{
 		botWithinBoundary = false;
-	}
 
 	return botWithinBoundary;
 }
