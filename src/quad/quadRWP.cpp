@@ -104,6 +104,7 @@ int main( int argc, char** argv )
 		if(botLat == currentLat && botLon == currentLong)
 		{
 			erleInit(0, n);
+			ros::spinOnce();
 			pausewait = time(NULL) + pause;
 			ROS_INFO("PAUSING...");
 			while(time(NULL) < pausewait)
@@ -111,6 +112,7 @@ int main( int argc, char** argv )
 				//do nothing
 			}
 			erleInit(16, n);
+			ros::spinOnce();
 			currentLat = randCoord( vertexNEy, vertexSWy );
 			currentLong = randCoord( vertexNEx, vertexSWx );
 			std::cout << "Pushed coords: " << std::setprecision(9) << currentLong << " , " << std::setprecision(9) << currentLat << std::endl;

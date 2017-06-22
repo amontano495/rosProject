@@ -350,6 +350,20 @@ quadWalk/fast:
 .PHONY : quadWalk/fast
 
 # Convenience name for target.
+quad/CMakeFiles/radioListener.dir/rule:
+	cd /home/erle/quadWS/build && $(MAKE) -f CMakeFiles/Makefile2 quad/CMakeFiles/radioListener.dir/rule
+.PHONY : quad/CMakeFiles/radioListener.dir/rule
+
+# Convenience name for target.
+radioListener: quad/CMakeFiles/radioListener.dir/rule
+.PHONY : radioListener
+
+# fast build rule for target.
+radioListener/fast:
+	cd /home/erle/quadWS/build && $(MAKE) -f quad/CMakeFiles/radioListener.dir/build.make quad/CMakeFiles/radioListener.dir/build
+.PHONY : radioListener/fast
+
+# Convenience name for target.
 quad/CMakeFiles/roscpp_generate_messages_cpp.dir/rule:
 	cd /home/erle/quadWS/build && $(MAKE) -f CMakeFiles/Makefile2 quad/CMakeFiles/roscpp_generate_messages_cpp.dir/rule
 .PHONY : quad/CMakeFiles/roscpp_generate_messages_cpp.dir/rule
@@ -655,6 +669,30 @@ quadWalk.cpp.s:
 	cd /home/erle/quadWS/build && $(MAKE) -f quad/CMakeFiles/quadWalk.dir/build.make quad/CMakeFiles/quadWalk.dir/quadWalk.cpp.s
 .PHONY : quadWalk.cpp.s
 
+radioListener.o: radioListener.cpp.o
+.PHONY : radioListener.o
+
+# target to build an object file
+radioListener.cpp.o:
+	cd /home/erle/quadWS/build && $(MAKE) -f quad/CMakeFiles/radioListener.dir/build.make quad/CMakeFiles/radioListener.dir/radioListener.cpp.o
+.PHONY : radioListener.cpp.o
+
+radioListener.i: radioListener.cpp.i
+.PHONY : radioListener.i
+
+# target to preprocess a source file
+radioListener.cpp.i:
+	cd /home/erle/quadWS/build && $(MAKE) -f quad/CMakeFiles/radioListener.dir/build.make quad/CMakeFiles/radioListener.dir/radioListener.cpp.i
+.PHONY : radioListener.cpp.i
+
+radioListener.s: radioListener.cpp.s
+.PHONY : radioListener.s
+
+# target to generate assembly for a file
+radioListener.cpp.s:
+	cd /home/erle/quadWS/build && $(MAKE) -f quad/CMakeFiles/radioListener.dir/build.make quad/CMakeFiles/radioListener.dir/radioListener.cpp.s
+.PHONY : radioListener.cpp.s
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -680,6 +718,7 @@ help:
 	@echo "... quadLap"
 	@echo "... quadRWP"
 	@echo "... quadWalk"
+	@echo "... radioListener"
 	@echo "... rebuild_cache"
 	@echo "... roscpp_generate_messages_cpp"
 	@echo "... roscpp_generate_messages_eus"
@@ -709,6 +748,9 @@ help:
 	@echo "... quadWalk.o"
 	@echo "... quadWalk.i"
 	@echo "... quadWalk.s"
+	@echo "... radioListener.o"
+	@echo "... radioListener.i"
+	@echo "... radioListener.s"
 .PHONY : help
 
 

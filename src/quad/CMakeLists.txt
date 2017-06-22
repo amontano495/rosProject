@@ -33,6 +33,8 @@ add_executable( quadWalk quadWalk.cpp )
 
 add_executable( quadDirection quadDirection.cpp )
 
+add_executable( radioListener radioListener.cpp )
+
 target_link_libraries(quadLap ${catkin_LIBRARIES})
 
 target_link_libraries(quadRWP ${catkin_LIBRARIES})
@@ -40,6 +42,8 @@ target_link_libraries(quadRWP ${catkin_LIBRARIES})
 target_link_libraries(quadWalk ${catkin_LIBRARIES})
 
 target_link_libraries(quadDirection ${catkin_LIBRARIES})
+
+target_link_libraries(radioListener ${catkin_LIBRARIES})
 
 install(TARGETS quadLap 
   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
@@ -54,5 +58,9 @@ install(TARGETS quadWalk
 )
 
 install(TARGETS quadDirection
+  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
+)
+
+install(TARGETS radioListener
   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
 )

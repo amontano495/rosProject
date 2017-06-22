@@ -42,6 +42,8 @@ int main(int argc, char** argv)
 	int rate = 10;
 	ros::Rate r(rate);
 
+	int inputMoveTime;
+
 	//times to move and reverse
 	time_t moveTime;
 	time_t revTime;
