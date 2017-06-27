@@ -1,4 +1,5 @@
 #include <string>
+#include <math.h>
 #include <vector>
 #include <cstdlib>
 #include <ctime>
@@ -37,6 +38,8 @@ int getWaypointAmt( ros::NodeHandle &node );
 
 void getBotCoords( const sensor_msgs::NavSatFix& msg );
 
+bool withinWaypointRadius( double lat, double lon );
+
 int main( int argc, char** argv )
 {
 	//Initial ROS settings
@@ -51,31 +54,48 @@ int main( int argc, char** argv )
 	ros::ServiceClient pushClient;
 	mavros_msgs::WaypointPush wayPusher;
 
+	ros::Subscriber gpsSub1 = n.subscribe("/mavros/global_position/raw/fix", 1000, &getBotCoords);
+
 	//Obtain data from user
-	double vertexNEx = 39.539152;
-	double vertexNEy = -119.814124;
-	double vertexSWx = 39.537778;
-	double vertexSWy = -119.814219;
+	double boundaryNElat;
+	double boundaryNElon;
+	double boundarySWlat;
+	double boundarySWlon;
+
+	bool boundaryRecorded = false;
+	bool northCornerRecorded = false;
+	bool southCornerRecorded = false;
+	char inputChar;
+
+	while( !boundaryRecorded )
+	{
+		std::cin >> inputChar;
+	
+		if( inputChar == 'N' )
+		{
+			ros::spinOnce();
+			boundaryNElat = botLat;
+			boundaryNElon = botLon;
+			ROS_INFO_STREAM("NE CORNER LAT: " << boundaryNElat << " LON: " << boundaryNElon );
+			northCornerRecorded = true;
+		}
+		else if( inputChar == 'S' )
+		{
+			ros::spinOnce();
+			boundarySWlat = botLat;
+			boundarySWlon = botLon;
+			ROS_INFO_STREAM("SW CORNER LAT: " << boundarySWlat << " LON: " << boundarySWlon );
+			southCornerRecorded = true;
+		}
+
+		if( northCornerRecorded && southCornerRecorded )
+			boundaryRecorded = true;
+	}
 
 	int totalTime = 10;
 	int inputSpeed = 16;
 	int pause = 3;
-/*
-	ROS_INFO("Enter x coordinate for NE vertex: ");
-	std::cin >> vertexNEx;
-	ROS_INFO("Enter y coordinate for NE vertex: ");
-	std::cin >> vertexNEy;
-	ROS_INFO("Enter x coordinate for SW vertex: ");
-	std::cin >> vertexSWx;
-	ROS_INFO("Enter y coordinate for SW vertex: ");
-	std::cin >> vertexSWy;
-	ROS_INFO("Enter time to run: ");
-	std::cin >> totalTime;
-	ROS_INFO("Enter desired speed (default is 16): ");
-	std::cin >> inputSpeed;
-	ROS_INFO("Enter the pause time ");
-	std::cin >> pause;
-*/
+
 	//Initialize MAVROS parameters
 	if( erleInit(inputSpeed, n) )
 		ROS_INFO("FINISHED INITIALIZING PARAMETERS");
@@ -83,25 +103,24 @@ int main( int argc, char** argv )
 	setBotMode("AUTO", n);
 
 	//Set up initial waypoint
-	double currentLat;
-	double currentLong;
-	currentLat = randCoord( vertexNEy, vertexSWy );
-	currentLong = randCoord( vertexNEx, vertexSWx );
-	std::cout << "Pushed coords: " << currentLong << " , " << currentLat << std::endl;
-	waypointPusher( wayPusher, pushClient, n, 2, 22, true, true, 15, 0, 0, 0, (float)currentLat, (float)currentLong, 50);
+	double targetLat;
+	double targetLong;
+	targetLat = randCoord( boundaryNElat, boundarySWlat );
+	targetLong = randCoord( boundaryNElon, boundarySWlon );
+	std::cout << "Pushed coords: " << targetLong << " , " << targetLat << std::endl;
+	waypointPusher( wayPusher, pushClient, n, 2, 22, true, true, 15, 0, 0, 0, targetLat, targetLong, 50);
 
 	time_t endwait;
 	time_t pausewait;
 	endwait = time(NULL) + totalTime;
 	
-	ros::Subscriber gpsSub1 = n.subscribe("/mavros/global_position/global", 1000, &getBotCoords);
 
 	//while true loop
 	while(time(NULL) < endwait)
 	{
 		std::cout << "botLat: " << botLat << " , botLon: " << botLon << std::endl;
 		//if wp reached, push new random wp
-		if(botLat == currentLat && botLon == currentLong)
+		if( withinWaypointRadius(targetLat, targetLong) )
 		{
 			erleInit(0, n);
 			ros::spinOnce();
@@ -113,10 +132,11 @@ int main( int argc, char** argv )
 			}
 			erleInit(16, n);
 			ros::spinOnce();
-			currentLat = randCoord( vertexNEy, vertexSWy );
-			currentLong = randCoord( vertexNEx, vertexSWx );
-			std::cout << "Pushed coords: " << std::setprecision(9) << currentLong << " , " << std::setprecision(9) << currentLat << std::endl;
-			waypointPusher( wayPusher, pushClient, n, 3, 16, true, true, 0, 0, 0, 0, (float)currentLat, (float)currentLong, 50);
+
+			targetLat = randCoord( boundaryNElat, boundarySWlat );
+			targetLong = randCoord( boundaryNElon, boundarySWlon );
+			std::cout << "Pushed coords: " << std::setprecision(9) << targetLat << " , " << std::setprecision(9) << targetLong << std::endl;
+			waypointPusher( wayPusher, pushClient, n, 3, 16, true, true, 0, 0, 0, 0, targetLat, targetLong, 50);
 		}
 		ros::spinOnce();
 		r.sleep();
@@ -125,6 +145,19 @@ int main( int argc, char** argv )
 	setBotMode("MANUAL", n);
 
 	return 0;
+}
+
+bool withinWaypointRadius( double lat, double lon )
+{
+	bool inCircle;
+	double rSqrd = 0.000000001;
+	double dSqrd = (pow((botLat - lat),2)) + (pow((botLon - lon),2));
+	if( dSqrd <= rSqrd )
+		inCircle = true;
+	else
+		inCircle = false;
+
+	return inCircle;
 }
 
 bool waypointPusher( mavros_msgs::WaypointPush &pusher, ros::ServiceClient client, ros::NodeHandle node, 

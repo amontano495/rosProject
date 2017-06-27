@@ -9,6 +9,8 @@
 /home/erle/quadWS/src/quad/quadRWP.cpp
 string
 -
+math.h
+-
 vector
 -
 cstdlib

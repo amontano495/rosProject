@@ -20,6 +20,14 @@
 #include <sensor_msgs/Imu.h>
 #include <sensor_msgs/NavSatFix.h>
 
+#define REVERSE_SPEED 1350
+#define FORWARD_SPEED 1570
+#define LEFT_TURN 1000
+#define RIGHT_TURN 2000
+#define STRAIGHT 1400
+#define LEFT 0
+#define RIGHT 1
+
 //Global gps coords of the robot
 double botLat;
 double botLon;
@@ -33,6 +41,12 @@ void getBotCoords( const sensor_msgs::NavSatFix& msg );
 //Determines if the bot is within the given two vertices
 //The two vertices represent opposite corners of a given square
 bool boundaryCheck( double V1lat, double V1lon, double V2lat, double V2lon );
+
+//Returns a uniformly distributed random number each time it is called
+int getUniRand( int min, int max );
+
+//Updates the speed of the bot
+void setBotMovement( int speed, int angle, ros::Publisher &rcPub );
 
 int main(int argc, char** argv)
 {
@@ -54,17 +68,16 @@ int main(int argc, char** argv)
 
 
 	//Dictate the throttle and steering of the robot
-	ros::Publisher rcOverridePub = n.advertise<mavros_msgs::OverrideRCIn>("/mavros/rc/override", 1 );
-	mavros_msgs::OverrideRCIn msg_override;
+	ros::Publisher rcPub = n.advertise<mavros_msgs::OverrideRCIn>("/mavros/rc/override", 1 );
 
 	//Used to gain information from GPS device
 	ros::Subscriber gpsSub = n.subscribe("/mavros/global_position/global", 1000, &getBotCoords );
 
 	//Represents two vertices of opposite corners of a square
-	double boundaryNElat = 39.539152;
-	double boundaryNElon = -119.814124;
-	double boundarySWlat = 39.537778;
-	double boundarySWlon = -119.814219;
+	double boundaryNElat;
+	double boundaryNElon;
+	double boundarySWlat;
+	double boundarySWlon;
 
 	//Sets robot to "MANUAL" mode
 	setBotMode( "MANUAL" , n );
@@ -72,63 +85,45 @@ int main(int argc, char** argv)
 	while(ros::ok())
 	{
 		randomDirection = rand() % 2;
-		randomTime = rand() % 3;
+		randomTime = getUniRand(2, 4);
 
-		if( randomDirection == 1 ) 
+		if( randomDirection == RIGHT ) 
 		{
 			ROS_INFO("TURNING RIGHT...");
-			//Force wheels right
-			msg_override.channels[0] = 2000;
-			rcOverridePub.publish(msg_override);
-			ros::spinOnce();
 
 			revTime = time(NULL) + randomTime;
 			while( time(NULL) < revTime )
 			{
-				//reverse
-				msg_override.channels[2] = 1552;
-				rcOverridePub.publish(msg_override);
-				ros::spinOnce();
+				//Force wheels right and reverse
+				setBotMovement( REVERSE_SPEED, RIGHT_TURN, rcPub );
 				r.sleep();
 			}
 			ROS_INFO("TURNING COMPLETED");
 		}
 
-		if( randomDirection == 0 )
+		if( randomDirection == LEFT )
 		{
 			ROS_INFO("TURNING LEFT...");
-			//Force wheels left
-			msg_override.channels[0] = 1000;
-			rcOverridePub.publish(msg_override);
-			ros::spinOnce();
 
 			revTime = time(NULL) + randomTime;
 			while( time(NULL) < revTime )
 			{
-				//reverse
-				msg_override.channels[2] = 1552;
-				rcOverridePub.publish(msg_override);
-				ros::spinOnce();
+				//Force wheels left
+				setBotMovement( REVERSE_SPEED, LEFT_TURN, rcPub );
 				r.sleep();
 			}
 			ROS_INFO("TURNING COMPLETED");
 		}
 
 		
-		//return wheels to forward position
-		msg_override.channels[0] = 1500;
-		rcOverridePub.publish(msg_override);
-		ros::spinOnce();
 
 		//move forward for fixed time or until out of bounds
 		ROS_INFO("MOVING...");
-		moveTime = time(NULL) + inputMoveTime;
-		while( boundaryCheck(boundaryNElat, boundaryNElon, boundarySWlat, boundarySWlon) )
+
+		while( !(boundaryCheck(boundaryNElat, boundaryNElon, boundarySWlat, boundarySWlon)) )
 		{
-			//forward
-			msg_override.channels[2] = 1425;
-			rcOverridePub.publish(msg_override);
-			ros::spinOnce();
+			//return wheels to forward position
+			setBotMovement( FORWARD_SPEED, STRAIGHT, rcPub );
 			r.sleep();
 		}
 
@@ -136,6 +131,24 @@ int main(int argc, char** argv)
 	}
 
 	return 0;
+}
+
+void setBotMovement( int speed, int angle, ros::Publisher &rcPub )
+{
+	mavros_msgs::OverrideRCIn msg;
+
+	msg.channels[0] = angle;
+	msg.channels[2] = speed;
+	rcPub.publish(msg);
+}
+
+int getUniRand( int min, int max )
+{
+	std::random_device rd;
+	std::mt19937 gen(rd());
+	std::uniform_int_distribution<> dis(min, max);
+
+	return dis(gen);
 }
 
 bool boundaryCheck( double V1lat, double V1lon, double V2lat, double V2lon )
