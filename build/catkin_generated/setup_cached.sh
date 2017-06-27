@@ -11,9 +11,6 @@ export CMAKE_PREFIX_PATH="/home/erle/quadWS/devel:$CMAKE_PREFIX_PATH"
 export LD_LIBRARY_PATH="/home/erle/quadWS/devel/lib:$LD_LIBRARY_PATH"
 export PKG_CONFIG_PATH="/home/erle/quadWS/devel/lib/pkgconfig:$PKG_CONFIG_PATH"
 export PWD="/home/erle/quadWS/build"
-<<<<<<< HEAD
-=======
 export PYTHONPATH="/home/erle/quadWS/devel/lib/python2.7/dist-packages:$PYTHONPATH"
->>>>>>> e0688481c87d5e115a096774ee195d4748f44d54
 export ROSLISP_PACKAGE_DIRECTORIES="/home/erle/quadWS/devel/share/common-lisp"
 export ROS_PACKAGE_PATH="/home/erle/quadWS/src:$ROS_PACKAGE_PATH"

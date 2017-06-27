@@ -115,14 +115,6 @@ int main(int argc, char** argv)
 
 	//Sets robot to "MANUAL" mode
 	setBotMode( "MANUAL" , n );
-	
-	double boundaryNElat = 39.539262;
-	double boundaryNElon = -119.81433;
-	double boundarySWlat = 39.539148;
-	double boundarySWlon = -119.814496;
-
-	//Sets robot to "MANUAL" mode
-	setBotMode( "MANUAL" , n );
 
 	while(ros::ok())
 	{

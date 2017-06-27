@@ -1,7 +1,7 @@
 file(REMOVE_RECURSE
   "CMakeFiles/quadDirection.dir/quadDirection.cpp.o"
-  "/home/erle/quadWS/devel/lib/quad/quadDirection.pdb"
-  "/home/erle/quadWS/devel/lib/quad/quadDirection"
+  "/home/erle/quadWS/devel/lib/quad/======quadDirection.pdb"
+  "/home/erle/quadWS/devel/lib/quad/======quadDirection"
 )
 
 # Per-language clean rules from dependency scanning.

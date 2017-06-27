@@ -1,7 +1,7 @@
 file(REMOVE_RECURSE
   "CMakeFiles/radioListener.dir/radioListener.cpp.o"
-  "/home/erle/quadWS/devel/lib/quad/radioListener.pdb"
-  "/home/erle/quadWS/devel/lib/quad/radioListener"
+  "/home/erle/quadWS/devel/lib/quad/======radioListener.pdb"
+  "/home/erle/quadWS/devel/lib/quad/======radioListener"
 )
 
 # Per-language clean rules from dependency scanning.
