@@ -120,10 +120,16 @@ int main(int argc, char** argv)
 		//move forward for fixed time or until out of bounds
 		ROS_INFO("MOVING...");
 
-		while( !(boundaryCheck(boundaryNElat, boundaryNElon, boundarySWlat, boundarySWlon)) )
+		while( boundaryCheck(boundaryNElat, boundaryNElon, boundarySWlat, boundarySWlon) )
 		{
 			//return wheels to forward position
 			setBotMovement( FORWARD_SPEED, STRAIGHT, rcPub );
+			r.sleep();
+		}
+		while( !(boundaryCheck(boundaryNElat, boundaryNElon, boundarySWlat, boundarySWlon)) )
+		{
+			//reverse out until within boundary
+			setBotMovement( REVERSE_SPEED, STRAIGHT, rcPub );
 			r.sleep();
 		}
 
@@ -154,16 +160,17 @@ int getUniRand( int min, int max )
 bool boundaryCheck( double V1lat, double V1lon, double V2lat, double V2lon )
 {
 	bool botWithinBoundary = true;
-	if(V2lat < botLat && botLat < V1lat )
+
+	if( (V1lat < botLat && botLat < V2lat) && (V1lon > botLon && botLon > V2lon) )
 	{
-		if( V2lon < botLon && botLon < V1lon )
-			botWithinBoundary = true;
-		else
-			botWithinBoundary = false;
+		botWithinBoundary = true;
+		ROS_INFO("WITHIN BOUNDARY!");
 	}
+
 	else
 	{
 		botWithinBoundary = false;
+		ROS_WARN_STREAM("OUT OF BOUNDS! BOT LAT: " << std::setprecision(10) << botLat << " BOT LON: " << std::setprecision(10) << botLon );
 	}
 
 	return botWithinBoundary;

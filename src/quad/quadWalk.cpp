@@ -25,7 +25,7 @@
 #define FORWARD_SPEED 1570
 #define LEFT_TURN 1000
 #define RIGHT_TURN 2000
-#define STRAIGHT 1400
+#define STRAIGHT 1350
 #define LEFT 0
 #define RIGHT 1
 
@@ -60,11 +60,13 @@ int main(int argc, char** argv)
 	//times to move and reverse
 	time_t moveTime;
 	time_t revTime;
+	time_t backTime;
 
 	//randomized variables for nondeterministic movement
 	int randomDirection;
 	int randomTime;
 
+	bool traveling = true;
 
 	//Used to gain information from GPS device
 	ros::Subscriber gpsSub = n.subscribe("/mavros/global_position/raw/fix", 1000, &getBotCoords );
@@ -96,7 +98,7 @@ int main(int argc, char** argv)
 			ros::spinOnce();
 			boundaryNElat = botLat;
 			boundaryNElon = botLon;
-			ROS_INFO_STREAM("NE CORNER LAT: " << boundaryNElat << " LON: " << boundaryNElon );
+			ROS_INFO_STREAM("NE CORNER LAT: " << std::setprecision(10) << boundaryNElat << " LON: " << std::setprecision(10) << boundaryNElon );
 			northCornerRecorded = true;
 		}
 		else if( inputChar == 'S' )
@@ -104,7 +106,7 @@ int main(int argc, char** argv)
 			ros::spinOnce();
 			boundarySWlat = botLat;
 			boundarySWlon = botLon;
-			ROS_INFO_STREAM("SW CORNER LAT: " << boundarySWlat << " LON: " << boundarySWlon );
+			ROS_INFO_STREAM("SW CORNER LAT: " << std::setprecision(10) << boundarySWlat << " LON: " << std::setprecision(10) << boundarySWlon );
 			southCornerRecorded = true;
 		}
 
@@ -155,13 +157,25 @@ int main(int argc, char** argv)
 		ROS_INFO("MOVING...");
 
 		moveTime = time(NULL) + inputMoveTime;
-		while( time(NULL) < moveTime )
+		traveling = true;
+		while( traveling )
 		{
 			//return wheels to forward position
 			setBotMovement( FORWARD_SPEED, STRAIGHT, rcPub );
 
 			if( !(boundaryCheck(boundaryNElat, boundaryNElon, boundarySWlat, boundarySWlon)) )
-				break;
+			{
+				ROS_INFO("HIT BOUNDARY");
+				backTime = time(NULL) + 3;
+				while( time(NULL) < backTime )
+				{
+					setBotMovement( REVERSE_SPEED, STRAIGHT, rcPub );
+				}
+				traveling = false;
+			}
+
+			if( time(NULL) < moveTime )
+				traveling = false;
 
 			r.sleep();
 		}
@@ -199,16 +213,12 @@ bool boundaryCheck( double V1lat, double V1lon, double V2lat, double V2lon )
 		botWithinBoundary = true;
 		ROS_INFO("WITHIN BOUNDARY!");
 	}
+
 	else
 	{
 		botWithinBoundary = false;
-		ROS_WARN_STREAM("OUT OF BOUNDS! BOT LAT: " << botLat << " BOT LON: " << botLon );
+		ROS_WARN_STREAM("OUT OF BOUNDS! BOT LAT: " << std::setprecision(10) << botLat << " BOT LON: " << std::setprecision(10) << botLon );
 	}
-
-	if( (V1lat < botLat && botLat < V2lat) && (V1lon < botLon && botLon < V2lon) )
-		botWithinBoundary = true;
-	else
-		botWithinBoundary = false;
 
 	return botWithinBoundary;
 }
