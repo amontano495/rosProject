@@ -11,8 +11,11 @@ string
 -
 math.h
 -
+<<<<<<< HEAD
 random
 -
+=======
+>>>>>>> e0688481c87d5e115a096774ee195d4748f44d54
 vector
 -
 cstdlib

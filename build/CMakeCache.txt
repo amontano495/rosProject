@@ -252,6 +252,12 @@ _CATKIN_GTEST_INCLUDE:FILEPATH=_CATKIN_GTEST_INCLUDE-NOTFOUND
 //Path to a file.
 _CATKIN_GTEST_SRC:FILEPATH=_CATKIN_GTEST_SRC-NOTFOUND
 
+<<<<<<< HEAD
+=======
+//Path to a file.
+_path_name:FILEPATH=/home/erle/quadWS/src/robot_upstart/test
+
+>>>>>>> e0688481c87d5e115a096774ee195d4748f44d54
 //The directory containing a CMake configuration file for catkin.
 catkin_DIR:PATH=/opt/ros/kinetic/share/catkin/cmake
 
@@ -276,6 +282,15 @@ quad_BINARY_DIR:STATIC=/home/erle/quadWS/build/quad
 //Value Computed by CMake
 quad_SOURCE_DIR:STATIC=/home/erle/quadWS/src/quad
 
+<<<<<<< HEAD
+=======
+//Value Computed by CMake
+robot_upstart_BINARY_DIR:STATIC=/home/erle/quadWS/build/robot_upstart
+
+//Value Computed by CMake
+robot_upstart_SOURCE_DIR:STATIC=/home/erle/quadWS/src/robot_upstart
+
+>>>>>>> e0688481c87d5e115a096774ee195d4748f44d54
 //The directory containing a CMake configuration file for rosconsole.
 rosconsole_DIR:PATH=/opt/ros/kinetic/share/rosconsole/cmake
 
@@ -291,6 +306,12 @@ roscpp_traits_DIR:PATH=/opt/ros/kinetic/share/roscpp_traits/cmake
 //The directory containing a CMake configuration file for rosgraph_msgs.
 rosgraph_msgs_DIR:PATH=/opt/ros/kinetic/share/rosgraph_msgs/cmake
 
+<<<<<<< HEAD
+=======
+//The directory containing a CMake configuration file for roslint.
+roslint_DIR:PATH=/opt/ros/kinetic/share/roslint/cmake
+
+>>>>>>> e0688481c87d5e115a096774ee195d4748f44d54
 //The directory containing a CMake configuration file for rostime.
 rostime_DIR:PATH=/opt/ros/kinetic/share/rostime/cmake
 

@@ -1,6 +1,9 @@
 #include <string>
 #include <math.h>
+<<<<<<< HEAD
 #include <random>
+=======
+>>>>>>> e0688481c87d5e115a096774ee195d4748f44d54
 #include <vector>
 #include <cstdlib>
 #include <ctime>
@@ -21,6 +24,7 @@
 #include <sensor_msgs/Imu.h>
 #include <sensor_msgs/NavSatFix.h>
 
+<<<<<<< HEAD
 #define REVERSE_SPEED 1350
 #define FORWARD_SPEED 1570
 #define LEFT_TURN 1000
@@ -29,6 +33,8 @@
 #define LEFT 0
 #define RIGHT 1
 
+=======
+>>>>>>> e0688481c87d5e115a096774ee195d4748f44d54
 //Global gps coords of the robot
 double botLat;
 double botLon;
@@ -43,12 +49,15 @@ void getBotCoords( const sensor_msgs::NavSatFix& msg );
 //The two vertices represent opposite corners of a given square
 bool boundaryCheck( double V1lat, double V1lon, double V2lat, double V2lon );
 
+<<<<<<< HEAD
 //Returns a uniformly distributed random number each time it is called
 int getUniRand( int min, int max );
 
 //Updates the speed of the bot
 void setBotMovement( int speed, int angle, ros::Publisher &rcPub );
 
+=======
+>>>>>>> e0688481c87d5e115a096774ee195d4748f44d54
 int main(int argc, char** argv)
 {
 	//Initial ROS settings
@@ -66,15 +75,25 @@ int main(int argc, char** argv)
 	int randomTime;
 
 
+<<<<<<< HEAD
 	//Used to gain information from GPS device
 	ros::Subscriber gpsSub = n.subscribe("/mavros/global_position/raw/fix", 1000, &getBotCoords );
 
 	ros::Publisher rcPub = n.advertise<mavros_msgs::OverrideRCIn>("/mavros/rc/override", 1);
+=======
+	//Dictate the throttle and steering of the robot
+	ros::Publisher rcOverridePub = n.advertise<mavros_msgs::OverrideRCIn>("/mavros/rc/override", 1 );
+	mavros_msgs::OverrideRCIn msg_override;
+
+	//Used to gain information from GPS device
+	ros::Subscriber gpsSub = n.subscribe("/mavros/global_position/global", 1000, &getBotCoords );
+>>>>>>> e0688481c87d5e115a096774ee195d4748f44d54
 
 	//fixed time from user input
 	int inputMoveTime = atoi(argv[1]);
 
 	//Represents two vertices of opposite corners of a square
+<<<<<<< HEAD
 	double boundaryNElat;
 	double boundaryNElon;
 
@@ -115,38 +134,81 @@ int main(int argc, char** argv)
 	//Sets robot to "MANUAL" mode
 	setBotMode( "MANUAL" , n );
 	
+=======
+	double boundaryNElat = 39.539262;
+	double boundaryNElon = -119.81433;
+	double boundarySWlat = 39.539148;
+	double boundarySWlon = -119.814496;
+
+	//Sets robot to "MANUAL" mode
+	setBotMode( "MANUAL" , n );
+>>>>>>> e0688481c87d5e115a096774ee195d4748f44d54
 
 	while(ros::ok())
 	{
 		randomDirection = rand() % 2;
+<<<<<<< HEAD
 		randomTime = getUniRand(2, 4);
 
 		if( randomDirection == RIGHT ) 
 		{
 			ROS_INFO("TURNING RIGHT...");
+=======
+		randomTime = rand() % 3;
+
+		if( randomDirection == 1 ) 
+		{
+			ROS_INFO("TURNING RIGHT...");
+			//Force wheels right
+			msg_override.channels[0] = 2000;
+			rcOverridePub.publish(msg_override);
+			ros::spinOnce();
+>>>>>>> e0688481c87d5e115a096774ee195d4748f44d54
 
 			revTime = time(NULL) + randomTime;
 			while( time(NULL) < revTime )
 			{
+<<<<<<< HEAD
 				//Force wheels right and reverse
 				setBotMovement( REVERSE_SPEED, RIGHT_TURN, rcPub );
 
+=======
+				//reverse
+				msg_override.channels[2] = 1552;
+				rcOverridePub.publish(msg_override);
+>>>>>>> e0688481c87d5e115a096774ee195d4748f44d54
 				ros::spinOnce();
 				r.sleep();
 			}
 			ROS_INFO("TURNING COMPLETED");
 		}
 
+<<<<<<< HEAD
 		if( randomDirection == LEFT )
 		{
 			ROS_INFO("TURNING LEFT...");
+=======
+		if( randomDirection == 0 )
+		{
+			ROS_INFO("TURNING LEFT...");
+			//Force wheels left
+			msg_override.channels[0] = 1000;
+			rcOverridePub.publish(msg_override);
+			ros::spinOnce();
+>>>>>>> e0688481c87d5e115a096774ee195d4748f44d54
 
 			revTime = time(NULL) + randomTime;
 			while( time(NULL) < revTime )
 			{
+<<<<<<< HEAD
 				//Force wheels left
 				setBotMovement( REVERSE_SPEED, LEFT_TURN, rcPub );
 
+=======
+				//reverse
+				msg_override.channels[2] = 1552;
+				rcOverridePub.publish(msg_override);
+>>>>>>> e0688481c87d5e115a096774ee195d4748f44d54
 				ros::spinOnce();
 				r.sleep();
 			}
@@ -154,6 +216,7 @@ int main(int argc, char** argv)
 		}
 
 		
+<<<<<<< HEAD
 
 		//move forward for fixed time or until out of bounds
 		ROS_INFO("MOVING...");
@@ -167,6 +230,21 @@ int main(int argc, char** argv)
 			if( !(boundaryCheck(boundaryNElat, boundaryNElon, boundarySWlat, boundarySWlon)) )
 				break;
 
+=======
+		//return wheels to forward position
+		msg_override.channels[0] = 1400;
+		rcOverridePub.publish(msg_override);
+		ros::spinOnce();
+
+		//move forward for fixed time or until out of bounds
+		ROS_INFO("MOVING...");
+		moveTime = time(NULL) + inputMoveTime;
+		while( time(NULL) < moveTime || boundaryCheck(boundarySWlat, boundarySWlon, boundaryNElat, boundaryNElon) )
+		{
+			//forward
+			msg_override.channels[2] = 1425;
+			rcOverridePub.publish(msg_override);
+>>>>>>> e0688481c87d5e115a096774ee195d4748f44d54
 			ros::spinOnce();
 			r.sleep();
 		}
@@ -177,6 +255,7 @@ int main(int argc, char** argv)
 	return 0;
 }
 
+<<<<<<< HEAD
 void setBotMovement( int speed, int angle, ros::Publisher &rcPub )
 {
 	mavros_msgs::OverrideRCIn msg;
@@ -195,10 +274,13 @@ int getUniRand( int min, int max )
 	return dis(gen);
 }
 
+=======
+>>>>>>> e0688481c87d5e115a096774ee195d4748f44d54
 bool boundaryCheck( double V1lat, double V1lon, double V2lat, double V2lon )
 {
 	bool botWithinBoundary;
 
+<<<<<<< HEAD
 	if( (V1lat < botLat && botLat < V2lat) && (V1lon > botLon && botLon > V2lon) )
 	{
 		botWithinBoundary = true;
@@ -210,6 +292,12 @@ bool boundaryCheck( double V1lat, double V1lon, double V2lat, double V2lon )
 		ROS_WARN_STREAM("OUT OF BOUNDS! BOT LAT: " << botLat << " BOT LON: " << botLon );
 	}
 
+=======
+	if( (V1lat < botLat && botLat < V2lat) && (V1lon < botLon && botLon < V2lon) )
+		botWithinBoundary = true;
+	else
+		botWithinBoundary = false;
+>>>>>>> e0688481c87d5e115a096774ee195d4748f44d54
 
 	return botWithinBoundary;
 }

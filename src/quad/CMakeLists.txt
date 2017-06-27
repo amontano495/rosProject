@@ -1,6 +1,9 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(quad)
+<<<<<<< HEAD
 add_definitions(-std=c++11)
+=======
+>>>>>>> e0688481c87d5e115a096774ee195d4748f44d54
 
 # Load catkin and all dependencies required for this package
 find_package(catkin REQUIRED COMPONENTS
