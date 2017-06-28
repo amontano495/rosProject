@@ -21,8 +21,8 @@
 #include <sensor_msgs/Imu.h>
 #include <sensor_msgs/NavSatFix.h>
 
-#define REVERSE_SPEED 1350
-#define FORWARD_SPEED 1570
+#define REVERSE_SPEED 1450
+#define FORWARD_SPEED 1590
 #define LEFT_TURN 1000
 #define RIGHT_TURN 2000
 #define STRAIGHT 1350
@@ -32,6 +32,7 @@
 //Global gps coords of the robot
 double botLat;
 double botLon;
+bool boundaryReached;
 
 //Sets the current mode of the robot (MANUAL, AUTO, etc);
 void setBotMode( std::string mode, ros::NodeHandle &node );
@@ -78,36 +79,38 @@ int main(int argc, char** argv)
 	int inputMoveTime = atoi(argv[1]);
 
 	//Represents two vertices of opposite corners of a square
-	double boundaryNElat;
-	double boundaryNElon;
+	double boundaryV1lat;
+	double boundaryV1lon;
 
-	double boundarySWlat;
-	double boundarySWlon;
+	double boundaryV2lat;
+	double boundaryV2lon;
 
 	bool boundaryRecorded = false;
 	bool northCornerRecorded = false;
 	bool southCornerRecorded = false;
 	char inputChar;
 
+	ROS_INFO("Please record the NORTH (N) and SOUTH (S) vertices of the boundaries");
+
 	while( !boundaryRecorded )
 	{
 		std::cin >> inputChar;
 	
-		if( inputChar == 'N' )
+		if( inputChar == 'S' )
 		{
 			ros::spinOnce();
-			boundaryNElat = botLat;
-			boundaryNElon = botLon;
-			ROS_INFO_STREAM("NE CORNER LAT: " << std::setprecision(10) << boundaryNElat << " LON: " << std::setprecision(10) << boundaryNElon );
-			northCornerRecorded = true;
-		}
-		else if( inputChar == 'S' )
-		{
-			ros::spinOnce();
-			boundarySWlat = botLat;
-			boundarySWlon = botLon;
-			ROS_INFO_STREAM("SW CORNER LAT: " << std::setprecision(10) << boundarySWlat << " LON: " << std::setprecision(10) << boundarySWlon );
+			boundaryV1lat = botLat;
+			boundaryV1lon = botLon;
+			ROS_INFO_STREAM("SW CORNER LAT: " << std::setprecision(10) << boundaryV1lat << " LON: " << std::setprecision(10) << boundaryV1lon );
 			southCornerRecorded = true;
+		}
+		else if( inputChar == 'N' )
+		{
+			ros::spinOnce();
+			boundaryV2lat = botLat;
+			boundaryV2lon = botLon;
+			ROS_INFO_STREAM("NE CORNER LAT: " << std::setprecision(10) << boundaryV2lat << " LON: " << std::setprecision(10) << boundaryV2lon );
+			northCornerRecorded = true;
 		}
 
 		if( northCornerRecorded && southCornerRecorded )
@@ -121,7 +124,7 @@ int main(int argc, char** argv)
 	while(ros::ok())
 	{
 		randomDirection = rand() % 2;
-		randomTime = getUniRand(2, 4);
+		randomTime = getUniRand(1, 3);
 
 		if( randomDirection == RIGHT ) 
 		{
@@ -151,7 +154,7 @@ int main(int argc, char** argv)
 			ROS_INFO("TURNING COMPLETED");
 		}
 
-		
+
 
 		//move forward for fixed time or until out of bounds
 		ROS_INFO("MOVING...");
@@ -163,13 +166,17 @@ int main(int argc, char** argv)
 			//return wheels to forward position
 			setBotMovement( FORWARD_SPEED, STRAIGHT, rcPub );
 
-			if( !(boundaryCheck(boundaryNElat, boundaryNElon, boundarySWlat, boundarySWlon)) )
+			//If out of bounds
+			if( !(boundaryCheck(boundaryV1lat, boundaryV1lon, boundaryV2lat, boundaryV2lon)) )
 			{
 				ROS_INFO("HIT BOUNDARY");
-				backTime = time(NULL) + 3;
+
+				backTime = time(NULL) + 2;
 				while( time(NULL) < backTime )
 				{
 					setBotMovement( REVERSE_SPEED, STRAIGHT, rcPub );
+					ros::spinOnce();
+					r.sleep();
 				}
 				traveling = false;
 			}
@@ -177,6 +184,7 @@ int main(int argc, char** argv)
 			if( time(NULL) < moveTime )
 				traveling = false;
 
+			ros::spinOnce();
 			r.sleep();
 		}
 
@@ -211,7 +219,6 @@ bool boundaryCheck( double V1lat, double V1lon, double V2lat, double V2lon )
 	if( (V1lat < botLat && botLat < V2lat) && (V1lon > botLon && botLon > V2lon) )
 	{
 		botWithinBoundary = true;
-		ROS_INFO("WITHIN BOUNDARY!");
 	}
 
 	else
