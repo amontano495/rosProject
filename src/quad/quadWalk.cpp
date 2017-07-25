@@ -21,11 +21,12 @@
 #include <sensor_msgs/Imu.h>
 #include <sensor_msgs/NavSatFix.h>
 
-#define REVERSE_SPEED 1450
-#define FORWARD_SPEED 1590
-#define LEFT_TURN 1000
-#define RIGHT_TURN 2000
-#define STRAIGHT 1350
+#define REVERSE_SPEED 1400
+#define FORWARD_SPEED 1600
+#define ZERO_SPEED 1500
+#define LEFT_TURN 1100
+#define RIGHT_TURN 1900
+#define STRAIGHT 1500
 #define LEFT 0
 #define RIGHT 1
 
@@ -68,6 +69,7 @@ int main(int argc, char** argv)
 	int randomTime;
 
 	bool traveling = true;
+	bool returning;
 
 	//Used to gain information from GPS device
 	ros::Subscriber gpsSub = n.subscribe("/mavros/global_position/raw/fix", 1000, &getBotCoords );
@@ -76,7 +78,7 @@ int main(int argc, char** argv)
 
 
 	//fixed time from user input
-	int inputMoveTime = atoi(argv[1]);
+	int inputMoveTime = 20;
 
 	//Represents two vertices of opposite corners of a square
 	double boundaryV1lat;
@@ -90,6 +92,7 @@ int main(int argc, char** argv)
 	bool southCornerRecorded = false;
 	char inputChar;
 
+/*
 	ROS_INFO("Please record the NORTH (N) and SOUTH (S) vertices of the boundaries");
 
 	while( !boundaryRecorded )
@@ -116,7 +119,13 @@ int main(int argc, char** argv)
 		if( northCornerRecorded && southCornerRecorded )
 			boundaryRecorded = true;
 	}
+*/
 
+	boundaryV2lat = 39.539065;
+	boundaryV2lon = -119.8146213;
+
+	boundaryV1lat = 39.5378701;
+	boundaryV1lon = -119.8137527;
 
 	//Sets robot to "MANUAL" mode
 	setBotMode( "MANUAL" , n );
@@ -124,7 +133,7 @@ int main(int argc, char** argv)
 	while(ros::ok())
 	{
 		randomDirection = rand() % 2;
-		randomTime = getUniRand(1, 3);
+		randomTime = getUniRand(1, 2);
 
 		if( randomDirection == RIGHT ) 
 		{
@@ -137,6 +146,8 @@ int main(int argc, char** argv)
 				setBotMovement( REVERSE_SPEED, RIGHT_TURN, rcPub );
 				r.sleep();
 			}
+
+			setBotMovement( ZERO_SPEED, STRAIGHT, rcPub );
 			ROS_INFO("TURNING COMPLETED");
 		}
 
@@ -151,6 +162,8 @@ int main(int argc, char** argv)
 				setBotMovement( REVERSE_SPEED, LEFT_TURN, rcPub );
 				r.sleep();
 			}
+
+			setBotMovement( ZERO_SPEED, STRAIGHT, rcPub );
 			ROS_INFO("TURNING COMPLETED");
 		}
 
@@ -167,22 +180,30 @@ int main(int argc, char** argv)
 			setBotMovement( FORWARD_SPEED, STRAIGHT, rcPub );
 
 			//If out of bounds
-			if( !(boundaryCheck(boundaryV1lat, boundaryV1lon, boundaryV2lat, boundaryV2lon)) )
+			if( !(boundaryCheck(boundaryV1lat, boundaryV1lon, boundaryV2lat, boundaryV2lon)) || returning )
 			{
+				returning = true;
 				ROS_INFO("HIT BOUNDARY");
-
-				backTime = time(NULL) + 2;
+				
+				backTime = time(NULL) + 5;
 				while( time(NULL) < backTime )
 				{
 					setBotMovement( REVERSE_SPEED, STRAIGHT, rcPub );
 					ros::spinOnce();
 					r.sleep();
 				}
+				returning = false;
+
+				setBotMovement( ZERO_SPEED, STRAIGHT, rcPub );
+				//setBotMovement( FORWARD_SPEED, STRAIGHT, rcPub );
 				traveling = false;
 			}
 
-			if( time(NULL) < moveTime )
+			if( time(NULL) == moveTime )
+			{
+				ROS_INFO("MOVING COMPLETED");
 				traveling = false;
+			}
 
 			ros::spinOnce();
 			r.sleep();
