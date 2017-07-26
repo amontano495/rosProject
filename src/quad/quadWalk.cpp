@@ -30,6 +30,11 @@
 #define LEFT 0
 #define RIGHT 1
 
+struct coord {
+	double lat;
+	double lon;
+} ;
+
 //Global gps coords of the robot
 double botLat;
 double botLon;
@@ -41,9 +46,10 @@ void setBotMode( std::string mode, ros::NodeHandle &node );
 //Sets the global coords to what the GPS device responds
 void getBotCoords( const sensor_msgs::NavSatFix& msg );
 
-//Determines if the bot is within the given two vertices
-//The two vertices represent opposite corners of a given square
-bool boundaryCheck( double V1lat, double V1lon, double V2lat, double V2lon );
+//Determines if the bot is within the given polygon
+bool boundaryCheck( coord thePath[] );
+
+bool RayCrossesSegment( coord a, coord b );
 
 //Returns a uniformly distributed random number each time it is called
 int getUniRand( int min, int max );
@@ -80,52 +86,22 @@ int main(int argc, char** argv)
 	//fixed time from user input
 	int inputMoveTime = 20;
 
-	//Represents two vertices of opposite corners of a square
-	double boundaryV1lat;
-	double boundaryV1lon;
+	//Represents vertices of a square
+	coord quadPolygon[4];
 
-	double boundaryV2lat;
-	double boundaryV2lon;
+	quadPolygon[0].lat = 39.539045;
+	quadPolygon[0].lon = -119.814623;
 
-	bool boundaryRecorded = false;
-	bool northCornerRecorded = false;
-	bool southCornerRecorded = false;
-	char inputChar;
+	quadPolygon[1].lat = 39.537889;
+	quadPolygon[1].lon = -119.813714;
 
-/*
-	ROS_INFO("Please record the NORTH (N) and SOUTH (S) vertices of the boundaries");
+	quadPolygon[2].lat = 39.539155;
+	quadPolygon[2].lon = -119.814138;
 
-	while( !boundaryRecorded )
-	{
-		std::cin >> inputChar;
-	
-		if( inputChar == 'S' )
-		{
-			ros::spinOnce();
-			boundaryV1lat = botLat;
-			boundaryV1lon = botLon;
-			ROS_INFO_STREAM("SW CORNER LAT: " << std::setprecision(10) << boundaryV1lat << " LON: " << std::setprecision(10) << boundaryV1lon );
-			southCornerRecorded = true;
-		}
-		else if( inputChar == 'N' )
-		{
-			ros::spinOnce();
-			boundaryV2lat = botLat;
-			boundaryV2lon = botLon;
-			ROS_INFO_STREAM("NE CORNER LAT: " << std::setprecision(10) << boundaryV2lat << " LON: " << std::setprecision(10) << boundaryV2lon );
-			northCornerRecorded = true;
-		}
+	quadPolygon[3].lat = 39.537783;
+	quadPolygon[3].lon = -119.814214;
 
-		if( northCornerRecorded && southCornerRecorded )
-			boundaryRecorded = true;
-	}
-*/
 
-	boundaryV2lat = 39.539065;
-	boundaryV2lon = -119.8146213;
-
-	boundaryV1lat = 39.5378701;
-	boundaryV1lon = -119.8137527;
 
 	//Sets robot to "MANUAL" mode
 	setBotMode( "MANUAL" , n );
@@ -180,7 +156,7 @@ int main(int argc, char** argv)
 			setBotMovement( FORWARD_SPEED, STRAIGHT, rcPub );
 
 			//If out of bounds
-			if( !(boundaryCheck(boundaryV1lat, boundaryV1lon, boundaryV2lat, boundaryV2lon)) || returning )
+			if( !(boundaryCheck(quadPolygon)) || returning )
 			{
 				returning = true;
 				ROS_INFO("HIT BOUNDARY");
@@ -233,11 +209,28 @@ int getUniRand( int min, int max )
 	return dis(gen);
 }
 
-bool boundaryCheck( double V1lat, double V1lon, double V2lat, double V2lon )
+bool boundaryCheck( coord thePath[] )
 {
+	int crossings = 0;
+	int count = 4;
+
 	bool botWithinBoundary;
 
-	if( (V1lat < botLat && botLat < V2lat) && (V1lon > botLon && botLon > V2lon) )
+	int j;
+	coord a, b;
+
+	for( int i = 0; i < count; i++ )
+	{
+		a = thePath[i];
+		j = i + 1;
+		if( j >= count )
+			j = 0;
+		b = thePath[j];
+		if( RayCrossesSegment( a, b ) )
+			crossings++;
+	}
+
+	if( crossings % 2 == 1 )
 	{
 		botWithinBoundary = true;
 	}
@@ -249,6 +242,38 @@ bool boundaryCheck( double V1lat, double V1lon, double V2lat, double V2lon )
 	}
 
 	return botWithinBoundary;
+}
+
+bool RayCrossesSegment( coord a, coord b )
+{
+	double px = botLon;
+	double py = botLat;
+	double ax = a.lon;
+	double ay = a.lat;
+	double bx = b.lon;
+	double by = b.lat;
+	if( ay > by )
+	{
+		ax = b.lon;
+		ay = b.lat;
+		bx = a.lon;
+		by = b.lat;
+	}
+
+	if (px < 0) { px += 360; };
+	if (ax < 0) { ax += 360; };
+	if (bx < 0) { bx += 360; };
+
+	if (py == ay || py == by) 
+		py += 0.00000001;
+	if ((py > by || py < ay) || (px > fmax(ax,bx)))
+		return false;
+	if (px < fmin(ax,bx))
+		return true;
+
+	double red = (ax != bx) ? ((by - ay) / (bx - ax)) : FLT_MAX;
+	double blue = (ax != px) ? ((py - ay) / (px - ax)) : FLT_MAX;
+	return (blue >= red);
 }
 
 void getBotCoords( const sensor_msgs::NavSatFix &msg )
