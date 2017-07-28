@@ -9,6 +9,7 @@
 #include <boost/thread.hpp>
 #include <geometry_msgs/TwistStamped.h>
 #include <mavros_msgs/OverrideRCIn.h>
+#include <mavros_msgs/WaypointPush.h>
 #include <mavros_msgs/SetMode.h>
 #include <mavros_msgs/State.h>
 #include <tf/transform_datatypes.h>
@@ -20,17 +21,30 @@
 #include <sensor_msgs/Imu.h>
 #include <sensor_msgs/NavSatFix.h>
 
-#define REVERSE_SPEED 1450
-#define FORWARD_SPEED 1570
-#define LEFT_TURN 1000
-#define RIGHT_TURN 2000
-#define STRAIGHT 1350
+#define REVERSE_SPEED 1400
+#define FORWARD_SPEED 1600
+#define ZERO_SPEED 1500
+#define LEFT_TURN 1100
+#define RIGHT_TURN 1900
+#define STRAIGHT 1500
 #define LEFT 0
 #define RIGHT 1
+
+struct coord {
+	double lat;
+	double lon;
+} ;
 
 //Global gps coords of the robot
 double botLat;
 double botLon;
+
+//Global gps coords of the polygonal boundary
+coord NWvert;
+coord SWvert;
+coord NEvert;
+coord SEvert;
+coord CenterVert;
 
 //Sets the current mode of the robot (MANUAL, AUTO, etc);
 void setBotMode( std::string mode, ros::NodeHandle &node );
@@ -40,13 +54,27 @@ void getBotCoords( const sensor_msgs::NavSatFix& msg );
 
 //Determines if the bot is within the given two vertices
 //The two vertices represent opposite corners of a given square
-bool boundaryCheck( double V1lat, double V1lon, double V2lat, double V2lon );
+bool boundaryCheck( coord thePath[] );
+
+bool RayCrossesSegment( coord a, coord b );
 
 //Returns a uniformly distributed random number each time it is called
 int getUniRand( int min, int max );
 
 //Updates the speed of the bot
 void setBotMovement( int speed, int angle, ros::Publisher &rcPub );
+
+//pushes waypoints to the rover
+bool waypointPusher( mavros_msgs::WaypointPush &pusher, ros::ServiceClient client, ros::NodeHandle node, 
+	int frame, int command, bool isCurrent, bool autoCont, 
+	float param1, float param2, float param3, float param4, 
+	float lat, float lon, float alt );
+
+//Sends the rover back to within the boundaries
+void returnToBoundary( ros::NodeHandle &node );
+
+//Captures the vertices of the polygon
+void setPolyVerts();
 
 int main(int argc, char** argv)
 {
@@ -61,6 +89,7 @@ int main(int argc, char** argv)
 	//times to move and reverse
 	time_t moveTime;
 	time_t revTime;
+	time_t stopTime;
 
 	//randomized variables for nondeterministic movement
 	int randomDirection;
@@ -73,51 +102,47 @@ int main(int argc, char** argv)
 	//Used to gain information from GPS device
 	ros::Subscriber gpsSub = n.subscribe("/mavros/global_position/global", 1000, &getBotCoords );
 
-	//Represents two vertices of opposite corners of a square
-	double boundaryV1lat;
-	double boundaryV1lon;
-	double boundaryV2lat;
-	double boundaryV2lon;
+	coord quadPolygon[4];
 
-	bool boundaryRecorded = false;
-	bool northCornerRecorded = false;
-	bool southCornerRecorded = false;
-	char inputChar;
+	//Lat/Lon vertices of the polygon
+	//Must be in order
 
-	ROS_INFO("Please record the NORTH (N) and SOUTH (S) vertices of the boundaries");
+	setPolyVerts();
 
-	while( !boundaryRecorded )
-	{
-		std::cin >> inputChar;
-	
-		if( inputChar == 'S' )
-		{
-			ros::spinOnce();
-			boundaryV1lat = botLat;
-			boundaryV1lon = botLon;
-			ROS_INFO_STREAM("SW CORNER LAT: " << std::setprecision(10) << boundaryV1lat << " LON: " << std::setprecision(10) << boundaryV1lon );
-			southCornerRecorded = true;
-		}
-		else if( inputChar == 'N' )
-		{
-			ros::spinOnce();
-			boundaryV2lat = botLat;
-			boundaryV2lon = botLon;
-			ROS_INFO_STREAM("NE CORNER LAT: " << std::setprecision(10) << boundaryV2lat << " LON: " << std::setprecision(10) << boundaryV2lon );
-			northCornerRecorded = true;
-		}
+	quadPolygon[0] = NWvert;
+	quadPolygon[1] = SWvert;
+	quadPolygon[2] = NEvert;
+	quadPolygon[3] = SEvert;
+/*
+	//NW vertex
+	quadPolygon[0].lat = 39.539045;
+	quadPolygon[0].lon = -119.814623;
 
-		if( northCornerRecorded && southCornerRecorded )
-			boundaryRecorded = true;
-	}
+	//SW vertex
+	quadPolygon[1].lat = 39.537889;
+	quadPolygon[1].lon = -119.813714;
 
+	//NE vertex
+	quadPolygon[2].lat = 39.539155;
+	quadPolygon[2].lon = -119.814138;
+
+	//SE vertex
+	quadPolygon[3].lat = 39.537783;
+	quadPolygon[3].lon = -119.814214;
+*/
 	//Sets robot to "MANUAL" mode
 	setBotMode( "MANUAL" , n );
+
+	while( botLat < 1 )
+	{
+		ros::spinOnce();
+		r.sleep();
+	}
 
 	while(ros::ok())
 	{
 		randomDirection = rand() % 2;
-		randomTime = getUniRand(1, 3);
+		randomTime = getUniRand(1, 2);
 
 		if( randomDirection == RIGHT ) 
 		{
@@ -130,6 +155,8 @@ int main(int argc, char** argv)
 				setBotMovement( REVERSE_SPEED, RIGHT_TURN, rcPub );
 				r.sleep();
 			}
+
+			setBotMovement( ZERO_SPEED, STRAIGHT, rcPub );
 			ROS_INFO("TURNING COMPLETED");
 		}
 
@@ -144,6 +171,8 @@ int main(int argc, char** argv)
 				setBotMovement( REVERSE_SPEED, LEFT_TURN, rcPub );
 				r.sleep();
 			}
+
+			setBotMovement( ZERO_SPEED, STRAIGHT, rcPub );
 			ROS_INFO("TURNING COMPLETED");
 		}
 
@@ -152,18 +181,35 @@ int main(int argc, char** argv)
 		//move forward for fixed time or until out of bounds
 		ROS_INFO("MOVING...");
 
-		while( boundaryCheck(boundaryV1lat, boundaryV1lon, boundaryV2lat, boundaryV2lon) )
+		while( boundaryCheck(quadPolygon) )
 		{
 			//return wheels to forward position
 			setBotMovement( FORWARD_SPEED, STRAIGHT, rcPub );
+			ros::spinOnce();
 			r.sleep();
 		}
-		while( !(boundaryCheck(boundaryV1lat, boundaryV1lon, boundaryV2lat, boundaryV2lon)) )
+
+		//head towards center until within boundary
+		ROS_INFO("RETURNING TO BOUNDARY...");
+
+		returnToBoundary( n );
+		setBotMode( "AUTO" , n );
+
+		while( !(boundaryCheck(quadPolygon)) )
 		{
-			//reverse out until within boundary
-			setBotMovement( REVERSE_SPEED, STRAIGHT, rcPub );
+			ros::spinOnce();
 			r.sleep();
 		}
+		setBotMode( "MANUAL" , n );
+		
+		stopTime = time(NULL) + 2;
+		while( time(NULL) < stopTime )
+		{
+			setBotMovement( FORWARD_SPEED, STRAIGHT, rcPub );
+			ros::spinOnce();
+			r.sleep();
+		}
+		setBotMovement( ZERO_SPEED, STRAIGHT, rcPub );
 
 		ros::spinOnce();
 	}
@@ -189,14 +235,30 @@ int getUniRand( int min, int max )
 	return dis(gen);
 }
 
-bool boundaryCheck( double V1lat, double V1lon, double V2lat, double V2lon )
+bool boundaryCheck( coord thePath[] )
 {
-	bool botWithinBoundary = true;
+	int crossings = 0;
+	int count = 4;
 
-	if( (V1lat < botLat && botLat < V2lat) && (V1lon > botLon && botLon > V2lon) )
+	bool botWithinBoundary;
+
+	int j;
+	coord a, b;
+
+	for( int i = 0; i < count; i++ )
+	{
+		a = thePath[i];
+		j = i + 1;
+		if( j >= count )
+			j = 0;
+		b = thePath[j];
+		if( RayCrossesSegment( a, b ) )
+			crossings++;
+	}
+
+	if( crossings % 2 == 1 )
 	{
 		botWithinBoundary = true;
-		ROS_INFO("WITHIN BOUNDARY!");
 	}
 
 	else
@@ -206,6 +268,38 @@ bool boundaryCheck( double V1lat, double V1lon, double V2lat, double V2lon )
 	}
 
 	return botWithinBoundary;
+}
+
+bool RayCrossesSegment( coord a, coord b )
+{
+	double px = botLon;
+	double py = botLat;
+	double ax = a.lon;
+	double ay = a.lat;
+	double bx = b.lon;
+	double by = b.lat;
+	if( ay > by )
+	{
+		ax = b.lon;
+		ay = b.lat;
+		bx = a.lon;
+		by = b.lat;
+	}
+
+	if (px < 0) { px += 360; };
+	if (ax < 0) { ax += 360; };
+	if (bx < 0) { bx += 360; };
+
+	if (py == ay || py == by) 
+		py += 0.00000001;
+	if ((py > by || py < ay) || (px > fmax(ax,bx)))
+		return false;
+	if (px < fmin(ax,bx))
+		return true;
+
+	double red = (ax != bx) ? ((by - ay) / (bx - ax)) : FLT_MAX;
+	double blue = (ax != px) ? ((py - ay) / (px - ax)) : FLT_MAX;
+	return (blue >= red);
 }
 
 void getBotCoords( const sensor_msgs::NavSatFix &msg )
@@ -231,3 +325,79 @@ void setBotMode( std::string mode, ros::NodeHandle &node)
 	}
 }
 
+
+bool waypointPusher( mavros_msgs::WaypointPush &pusher, ros::ServiceClient client, ros::NodeHandle node, 
+	int frame, int command, bool isCurrent, bool autoCont, 
+	float param1, float param2, float param3, float param4, 
+	float lat, float lon, float alt )
+{
+	client = node.serviceClient<mavros_msgs::WaypointPush>("mavros/mission/push");
+	
+	mavros_msgs::Waypoint nextWaypoint;
+
+	nextWaypoint.frame = frame;
+	nextWaypoint.command = command;
+	nextWaypoint.is_current = isCurrent;
+	nextWaypoint.autocontinue = autoCont;
+	nextWaypoint.param1 = param1;
+	nextWaypoint.param2 = param2;
+	nextWaypoint.param3 = param3;
+	nextWaypoint.param4 = param4;
+	nextWaypoint.x_lat = lat;
+	nextWaypoint.y_long = lon;
+	nextWaypoint.z_alt = alt;
+
+	pusher.request.waypoints.push_back(nextWaypoint);
+
+	if( client.call( pusher) )
+		ROS_INFO_STREAM("PUSHED WAYPOINT");
+	else
+		ROS_INFO_STREAM("PUSH FAILED");
+
+	return client.call(pusher);
+}
+
+void returnToBoundary( ros::NodeHandle &node )
+{
+	ros::ServiceClient pushClient;
+	mavros_msgs::WaypointPush wayPusher;
+
+	waypointPusher( wayPusher, pushClient, node, 2, 22, true, true, 15, 0, 0, 0, 39.538440, -119.814151, 50 );
+	waypointPusher( wayPusher, pushClient, node, 3, 16, true, true, 0, 0, 0, 0, 39.538440, -119.814151, 50 );
+}
+
+void setPolyVerts()
+{
+	int vertCounter = 0;
+	std::string vertUserInput;
+
+	while( vertCounter < 4 )
+	{
+		std::cin >> vertUserInput;
+		ros::spinOnce();
+		if( vertUserInput == "NW" )
+		{
+			NWvert.lat = botLat;
+			NWvert.lon = botLon;
+			vertCounter++;
+		}
+		else if( vertUserInput == "NE" )
+		{
+			NEvert.lat = botLat;
+			NEvert.lon = botLon;
+			vertCounter++;
+		}
+		else if( vertUserInput == "SW" )
+		{
+			SWvert.lat = botLat;
+			SWvert.lon = botLon;
+			vertCounter++;
+		}
+		else if( vertUserInput == "SE" )
+		{
+			SEvert.lat = botLat;
+			SEvert.lon = botLon;
+			vertCounter++;
+		}
+	}
+}
