@@ -1,0 +1,8 @@
+prefix=/home/amontano/quadWS/devel
+
+Name: quad
+Description: Description of quad
+Version: 0.0.0
+Cflags: 
+Libs: -L/home/amontano/quadWS/devel/lib 
+Requires: roscpp mavros_msgs

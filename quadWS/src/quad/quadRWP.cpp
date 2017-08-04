@@ -67,32 +67,12 @@ int main( int argc, char** argv )
 	bool southCornerRecorded = false;
 	char inputChar;
 
-	while( !boundaryRecorded )
-	{
-		std::cin >> inputChar;
-	
-		if( inputChar == 'S' )
-		{
-			ros::spinOnce();
-			boundaryV1lat = botLat;
-			boundaryV1lon = botLon;
-			ROS_INFO_STREAM("NE CORNER LAT: " << boundaryV1lat << " LON: " << boundaryV1lon );
-			southCornerRecorded = true;
-		}
-		else if( inputChar == 'N' )
-		{
-			ros::spinOnce();
-			boundaryV2lat = botLat;
-			boundaryV2lon = botLon;
-			ROS_INFO_STREAM("SW CORNER LAT: " << boundaryV2lat << " LON: " << boundaryV2lon );
-			northCornerRecorded = true;
-		}
+	boundaryV1lat = 39.539045;
+	boundaryV1lon = -119.814623;
 
-		if( northCornerRecorded && southCornerRecorded )
-			boundaryRecorded = true;
-	}
-
-	int totalTime = 10;
+	boundaryV2lat = 39.537783;
+	boundaryV2lon = -119.814214;
+	int totalTime = 120;
 	int inputSpeed = 16;
 	int pause = 3;
 
@@ -100,25 +80,27 @@ int main( int argc, char** argv )
 	if( erleInit(inputSpeed, n) )
 		ROS_INFO("FINISHED INITIALIZING PARAMETERS");
 
-	setBotMode("AUTO", n);
 
 	//Set up initial waypoint
 	double targetLat;
 	double targetLong;
 	targetLat = randCoord( boundaryV1lat, boundaryV2lat );
-	targetLong = randCoord( boundaryV1lon, boundaryV2lon );
-	std::cout << "Pushed coords: " << targetLong << " , " << targetLat << std::endl;
+	targetLong = randCoord( boundaryV2lon, boundaryV1lon );
+
+	std::cout << "Pushed coords: " << std::setprecision(9) << targetLat << " , " << std::setprecision(9) << targetLong << std::endl;
 	waypointPusher( wayPusher, pushClient, n, 2, 22, true, true, 15, 0, 0, 0, targetLat, targetLong, 50 );
+	waypointPusher( wayPusher, pushClient, n, 3, 16, true, true, 0, 0, 0, 0, targetLat, targetLong, 50 );
+
+	setBotMode("AUTO", n);
 
 	time_t endwait;
 	time_t pausewait;
 	endwait = time(NULL) + totalTime;
-	
+
 
 	//while true loop
-	while(time(NULL) < endwait)
+	while(ros::ok())
 	{
-		std::cout << "botLat: " << botLat << " , botLon: " << botLon << std::endl;
 		//if wp reached, push new random wp
 		if( withinWaypointRadius(targetLat, targetLong) )
 		{
@@ -135,7 +117,7 @@ int main( int argc, char** argv )
 			ros::spinOnce();
 
 			targetLat = randCoord( boundaryV1lat, boundaryV2lat );
-			targetLong = randCoord( boundaryV1lon, boundaryV2lon );
+			targetLong = randCoord( boundaryV2lon, boundaryV1lon );
 			std::cout << "Pushed coords: " << std::setprecision(9) << targetLat << " , " << std::setprecision(9) << targetLong << std::endl;
 			waypointPusher( wayPusher, pushClient, n, 3, 16, true, true, 0, 0, 0, 0, targetLat, targetLong, 50);
 		}
@@ -151,10 +133,13 @@ int main( int argc, char** argv )
 bool withinWaypointRadius( double lat, double lon )
 {
 	bool inCircle;
-	double rSqrd = 0.000000001;
+	double rSqrd = 0.00000001;
 	double dSqrd = (pow((botLat - lat),2)) + (pow((botLon - lon),2));
 	if( dSqrd <= rSqrd )
+	{
 		inCircle = true;
+		ROS_WARN("WITHIN RADIUS");
+	}
 	else
 		inCircle = false;
 
@@ -194,8 +179,8 @@ bool waypointPusher( mavros_msgs::WaypointPush &pusher, ros::ServiceClient clien
 
 double randCoord( double high, double low )
 {
-	double randomNum = high + static_cast <double> (rand()) / ( static_cast <double> (RAND_MAX/(high-low)));
-	return randomNum;
+	double f = (double)rand() / RAND_MAX;
+	return low + f * (high - low);
 }
 
 bool erleInit(int speed, ros::NodeHandle &node)

@@ -25,6 +25,7 @@ include_directories(include ${catkin_INCLUDE_DIRS})
 ## Build ##
 ###########
 
+add_library( botLib botLib.cpp )
 
 add_executable( quadLap quadLap.cpp )
 
@@ -32,7 +33,7 @@ add_executable( quadRWP quadRWP.cpp )
 
 add_executable( quadWalk quadWalk.cpp )
 
-add_executable( quadDirection quadDirection.cpp )
+add_executable( quadDirection quadDirection.cpp botLib.cpp )
 
 add_executable( radioListener radioListener.cpp )
 
@@ -42,7 +43,7 @@ target_link_libraries(quadRWP ${catkin_LIBRARIES})
 
 target_link_libraries(quadWalk ${catkin_LIBRARIES})
 
-target_link_libraries(quadDirection ${catkin_LIBRARIES})
+target_link_libraries(quadDirection botLib ${catkin_LIBRARIES})
 
 target_link_libraries(radioListener ${catkin_LIBRARIES})
 

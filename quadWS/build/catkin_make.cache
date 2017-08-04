@@ -1,0 +1,2 @@
+quad
+-DCATKIN_DEVEL_PREFIX=/home/amontano/quadWS/devel -DCMAKE_INSTALL_PREFIX=/home/amontano/quadWS/install -G Unix Makefiles
