@@ -1,1 +1,0 @@
-/usr/lib/ccache/c++  -fPIC   -shared -Wl,-soname,libbotLib.so -o /home/amontano/quadWS/devel/lib/libbotLib.so CMakeFiles/botLib.dir/botLib.cpp.o 
