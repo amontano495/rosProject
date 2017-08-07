@@ -51,4 +51,7 @@ void setPolyVerts();
 
 //Updates the speed of the bot
 void setBotMovement( int speed, int angle, ros::Publisher &rcPub );
+
+
+bool withinWaypointRadius( double lat, double lon );
 #endif

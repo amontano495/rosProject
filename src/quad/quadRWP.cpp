@@ -19,26 +19,17 @@
 #include <mavros_msgs/ParamPush.h>
 #include <mavros_msgs/ParamGet.h>
 
-//Global latitude and longitude
-double botLon;
-double botLat;
+#include "botLib.h"
 
-bool waypointPusher( mavros_msgs::WaypointPush &pusher, ros::ServiceClient client, ros::NodeHandle node, 
-	int frame, int command, bool isCurrent, bool autoCont, 
-	float param1, float param2, float param3, float param4, 
-	float lat, float lon, float alt );
-
-double randCoord( double high, double low );
+coord randCoord( coord polygon[] );
 
 bool erleInit( int speed, ros::NodeHandle &node );
 
-void setBotMode( std::string mode, ros::NodeHandle &node );
-
 int getWaypointAmt( ros::NodeHandle &node );
 
-void getBotCoords( const sensor_msgs::NavSatFix& msg );
+bool boundaryCheckRand( coord thePath[], double lat, double lon );
 
-bool withinWaypointRadius( double lat, double lon );
+bool RayCrossesSegmentRand( coord a, coord b, double lat, double lon );
 
 int main( int argc, char** argv )
 {
@@ -57,21 +48,25 @@ int main( int argc, char** argv )
 	ros::Subscriber gpsSub1 = n.subscribe("/mavros/global_position/raw/fix", 1000, &getBotCoords);
 
 	//Obtain data from user
-	double boundaryV1lat;
-	double boundaryV1lon;
-	double boundaryV2lat;
-	double boundaryV2lon;
 
-	bool boundaryRecorded = false;
-	bool northCornerRecorded = false;
-	bool southCornerRecorded = false;
-	char inputChar;
+	coord quadPolygon[4];
+	//NW vertex
+	quadPolygon[0].lat = 39.539045;
+	quadPolygon[0].lon = -119.814623;
 
-	boundaryV1lat = 39.539045;
-	boundaryV1lon = -119.814623;
+	//SW vertex
+	quadPolygon[1].lat = 39.537889;
+	quadPolygon[1].lon = -119.813714;
 
-	boundaryV2lat = 39.537783;
-	boundaryV2lon = -119.814214;
+	//NE vertex
+	quadPolygon[2].lat = 39.539155;
+	quadPolygon[2].lon = -119.814138;
+
+	//SE vertex
+	quadPolygon[3].lat = 39.537783;
+	quadPolygon[3].lon = -119.814214;
+
+
 	int totalTime = 120;
 	int inputSpeed = 16;
 	int pause = 3;
@@ -81,11 +76,13 @@ int main( int argc, char** argv )
 		ROS_INFO("FINISHED INITIALIZING PARAMETERS");
 
 
+	setBotMode("MANUAL", n);
 	//Set up initial waypoint
 	double targetLat;
 	double targetLong;
-	targetLat = randCoord( boundaryV1lat, boundaryV2lat );
-	targetLong = randCoord( boundaryV2lon, boundaryV1lon );
+	coord targetCoord = randCoord( quadPolygon );
+	targetLat = targetCoord.lat;
+	targetLong = targetCoord.lon;
 
 	std::cout << "Pushed coords: " << std::setprecision(9) << targetLat << " , " << std::setprecision(9) << targetLong << std::endl;
 	waypointPusher( wayPusher, pushClient, n, 2, 22, true, true, 15, 0, 0, 0, targetLat, targetLong, 50 );
@@ -116,8 +113,10 @@ int main( int argc, char** argv )
 			erleInit(16, n);
 			ros::spinOnce();
 
-			targetLat = randCoord( boundaryV1lat, boundaryV2lat );
-			targetLong = randCoord( boundaryV2lon, boundaryV1lon );
+			coord targetCoord = randCoord( quadPolygon );
+			targetLat = targetCoord.lat;
+			targetLong = targetCoord.lon;
+
 			std::cout << "Pushed coords: " << std::setprecision(9) << targetLat << " , " << std::setprecision(9) << targetLong << std::endl;
 			waypointPusher( wayPusher, pushClient, n, 3, 16, true, true, 0, 0, 0, 0, targetLat, targetLong, 50);
 		}
@@ -130,57 +129,39 @@ int main( int argc, char** argv )
 	return 0;
 }
 
-bool withinWaypointRadius( double lat, double lon )
-{
-	bool inCircle;
-	double rSqrd = 0.00000001;
-	double dSqrd = (pow((botLat - lat),2)) + (pow((botLon - lon),2));
-	if( dSqrd <= rSqrd )
-	{
-		inCircle = true;
-		ROS_WARN("WITHIN RADIUS");
-	}
-	else
-		inCircle = false;
 
-	return inCircle;
-}
-
-bool waypointPusher( mavros_msgs::WaypointPush &pusher, ros::ServiceClient client, ros::NodeHandle node, 
-	int frame, int command, bool isCurrent, bool autoCont, 
-	float param1, float param2, float param3, float param4, 
-	float lat, float lon, float alt )
+coord randCoord( coord polygon[] )
 {
-	client = node.serviceClient<mavros_msgs::WaypointPush>("mavros/mission/push");
+	bool withinPolygon = false;
+	double randLat;
+	double randLon;
+	coord randCoord;
+
+	double latHigh;
+	double lonHigh;
+	double latLow;
+	double lonLow;
+
+	latHigh = polygon[0].lat;
+	lonHigh = polygon[0].lon;
+	latLow = polygon[3].lat;
+	lonLow = polygon[3].lon;
 	
-	mavros_msgs::Waypoint nextWaypoint;
-
-	nextWaypoint.frame = frame;
-	nextWaypoint.command = command;
-	nextWaypoint.is_current = isCurrent;
-	nextWaypoint.autocontinue = autoCont;
-	nextWaypoint.param1 = param1;
-	nextWaypoint.param2 = param2;
-	nextWaypoint.param3 = param3;
-	nextWaypoint.param4 = param4;
-	nextWaypoint.x_lat = lat;
-	nextWaypoint.y_long = lon;
-	nextWaypoint.z_alt = alt;
-
-	pusher.request.waypoints.push_back(nextWaypoint);
-
-	if( client.call( pusher) )
-		ROS_INFO("PUSHED WAYPOINT");
-	else
-		ROS_ERROR("PUSH FAILED");
-
-	return client.call(pusher);
-}
-
-double randCoord( double high, double low )
-{
-	double f = (double)rand() / RAND_MAX;
-	return low + f * (high - low);
+	while( withinPolygon == false )
+	{
+		randLat = latLow + ((double)rand() / RAND_MAX) * (latHigh - latLow);
+		randLon = lonLow + ((double)rand() / RAND_MAX) * (lonHigh - lonLow);
+		std::cout << "Rand Coords: " << std::setprecision(9) << randLat << " , " << std::setprecision(9) << randLon << std::endl;
+		randCoord.lat = randLat;
+		randCoord.lon = randLon;
+		
+		if( boundaryCheckRand( polygon, randLat, randLon ) )
+			withinPolygon = true;
+	}
+	
+	randCoord.lat = randLat;
+	randCoord.lon = randLon;
+	return randCoord;
 }
 
 bool erleInit(int speed, ros::NodeHandle &node)
@@ -260,23 +241,6 @@ bool erleInit(int speed, ros::NodeHandle &node)
 	return speedPushSucc;
 }
 
-void setBotMode( std::string mode, ros::NodeHandle &node)
-{
-	mavros_msgs::SetMode setMode;
-	mavros_msgs::State currentState;
-	ros::ServiceClient setModeClient = node.serviceClient<mavros_msgs::SetMode>("mavros/set_mode");
-
-	setMode.request.custom_mode = mode;
-
-	if( currentState.mode != mode )
-	{
-		if( setModeClient.call(setMode) )
-			ROS_INFO_STREAM("MODE UPDATED TO: " << mode);
-		else
-			ROS_ERROR_STREAM("FAILED TO UPDATE MODE TO: " << mode);
-	}
-}
-
 int getWaypointAmt( ros::NodeHandle &node )
 {
 	ros::ServiceClient waypointClient = node.serviceClient<mavros_msgs::WaypointPull>("mavros/mission/pull");
@@ -295,8 +259,68 @@ int getWaypointAmt( ros::NodeHandle &node )
 	return resp.wp_received;
 }
 
-void getBotCoords( const sensor_msgs::NavSatFix& msg )
+bool boundaryCheckRand( coord thePath[], double lat, double lon )
 {
-	botLon = msg.longitude;
-	botLat = msg.latitude;
+	int crossings = 0;
+	int count = 4;
+
+	bool botWithinBoundary;
+
+	int j;
+	coord a, b;
+
+	for( int i = 0; i < count; i++ )
+	{
+		a = thePath[i];
+		j = i + 1;
+		if( j >= count )
+			j = 0;
+		b = thePath[j];
+		if( RayCrossesSegmentRand( a, b, lat, lon ) )
+			crossings++;
+	}
+
+	if( crossings % 2 == 1 )
+	{
+		botWithinBoundary = true;
+	}
+
+	else
+	{
+		botWithinBoundary = false;
+	}
+
+	return botWithinBoundary;
+}
+
+bool RayCrossesSegmentRand( coord a, coord b, double lat, double lon )
+{
+	double px = lon;
+	double py = lat;
+	double ax = a.lon;
+	double ay = a.lat;
+	double bx = b.lon;
+	double by = b.lat;
+	if( ay > by )
+	{
+		ax = b.lon;
+		ay = b.lat;
+		bx = a.lon;
+		by = b.lat;
+	}
+
+	if (px < 0) { px += 360; };
+	if (ax < 0) { ax += 360; };
+	if (bx < 0) { bx += 360; };
+
+	if (py == ay || py == by) 
+		py += 0.00000001;
+	if ((py > by || py < ay) || (px > fmax(ax,bx)))
+		return false;
+	if (px < fmin(ax,bx))
+		return true;
+
+	double red = (ax != bx) ? ((by - ay) / (bx - ax)) : FLT_MAX;
+	double blue = (ax != px) ? ((py - ay) / (px - ax)) : FLT_MAX;
+	return (blue >= red);
 }

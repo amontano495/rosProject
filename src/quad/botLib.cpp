@@ -202,4 +202,20 @@ void setPolyVerts()
 		}
 	}
 }
+
+bool withinWaypointRadius( double lat, double lon )
+{
+	bool inCircle;
+	double rSqrd = 0.00000001;
+	double dSqrd = (pow((botLat - lat),2)) + (pow((botLon - lon),2));
+	if( dSqrd <= rSqrd )
+	{
+		inCircle = true;
+		ROS_WARN("WITHIN RADIUS");
+	}
+	else
+		inCircle = false;
+
+	return inCircle;
+}
 #endif

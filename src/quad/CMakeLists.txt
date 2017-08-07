@@ -29,7 +29,7 @@ add_library( botLib botLib.cpp )
 
 add_executable( quadLap quadLap.cpp )
 
-add_executable( quadRWP quadRWP.cpp )
+add_executable( quadRWP quadRWP.cpp botLib.cpp )
 
 add_executable( quadWalk quadWalk.cpp botLib.cpp )
 
@@ -39,7 +39,7 @@ add_executable( radioListener radioListener.cpp )
 
 target_link_libraries(quadLap ${catkin_LIBRARIES})
 
-target_link_libraries(quadRWP ${catkin_LIBRARIES})
+target_link_libraries(quadRWP botLib ${catkin_LIBRARIES})
 
 target_link_libraries(quadWalk botLib ${catkin_LIBRARIES})
 
