@@ -15,12 +15,14 @@ coord NEvert;
 coord SEvert;
 coord CenterVert;
 
+//Sets the global coords of the robot to message returned from ROS
 void getBotCoords( const sensor_msgs::NavSatFix &msg )
 {
 	botLat = msg.latitude;
 	botLon = msg.longitude;
 }
 
+//Determines if global coords of bot within defined polygon
 bool boundaryCheck( coord thePath[] )
 {
 	int crossings = 0;
@@ -56,32 +58,6 @@ bool boundaryCheck( coord thePath[] )
 	return botWithinBoundary;
 }
 
-void setBotMovement( int speed, int angle, ros::Publisher &rcPub )
-{
-	mavros_msgs::OverrideRCIn msg;
-
-	msg.channels[0] = angle;
-	msg.channels[2] = speed;
-	rcPub.publish(msg);
-}
-
-void setBotMode( std::string mode, ros::NodeHandle &node)
-{
-	mavros_msgs::SetMode setMode;
-	mavros_msgs::State currentState;
-	ros::ServiceClient setModeClient = node.serviceClient<mavros_msgs::SetMode>("mavros/set_mode");
-
-	setMode.request.custom_mode = mode;
-
-	if( currentState.mode != mode )
-	{
-		if( setModeClient.call(setMode) )
-			ROS_INFO_STREAM("MODE UPDATED TO: " << mode);
-		else
-			ROS_ERROR_STREAM("FAILED TO UPDATE MODE TO: " << mode);
-	}
-}
-
 bool RayCrossesSegment( coord a, coord b )
 {
 	double px = botLon;
@@ -113,6 +89,34 @@ bool RayCrossesSegment( coord a, coord b )
 	double blue = (ax != px) ? ((py - ay) / (px - ax)) : FLT_MAX;
 	return (blue >= red);
 }
+
+//Sets the bots speed and angle (values between 1100 - 1900)
+void setBotMovement( int speed, int angle, ros::Publisher &rcPub )
+{
+	mavros_msgs::OverrideRCIn msg;
+
+	msg.channels[0] = angle;
+	msg.channels[2] = speed;
+	rcPub.publish(msg);
+}
+
+void setBotMode( std::string mode, ros::NodeHandle &node)
+{
+	mavros_msgs::SetMode setMode;
+	mavros_msgs::State currentState;
+	ros::ServiceClient setModeClient = node.serviceClient<mavros_msgs::SetMode>("mavros/set_mode");
+
+	setMode.request.custom_mode = mode;
+
+	if( currentState.mode != mode )
+	{
+		if( setModeClient.call(setMode) )
+			ROS_INFO_STREAM("MODE UPDATED TO: " << mode);
+		else
+			ROS_ERROR_STREAM("FAILED TO UPDATE MODE TO: " << mode);
+	}
+}
+
 
 
 int getUniRand( int min, int max )

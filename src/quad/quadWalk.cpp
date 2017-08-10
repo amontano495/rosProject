@@ -50,7 +50,6 @@ int main(int argc, char** argv)
 	int randomTime;
 
 	bool traveling = true;
-	bool returning;
 
 	//Used to gain information from GPS device
 	ros::Subscriber gpsSub = n.subscribe("/mavros/global_position/raw/fix", 1000, &getBotCoords );
@@ -83,9 +82,12 @@ int main(int argc, char** argv)
 
 	while(ros::ok())
 	{
+		//randomly pick a direction and time length
 		randomDirection = rand() % 2;
 		randomTime = getUniRand(1, 2);
 
+
+		//spin backwards in order to pick a new, random direction
 		if( randomDirection == RIGHT ) 
 		{
 			ROS_INFO("TURNING RIGHT...");
@@ -130,26 +132,26 @@ int main(int argc, char** argv)
 			//return wheels to forward position
 			setBotMovement( FORWARD_SPEED, STRAIGHT, rcPub );
 
-			//If out of bounds
-			if( !(boundaryCheck(quadPolygon)) || returning )
+			//case: out of bounds
+			if( !(boundaryCheck(quadPolygon)) )
 			{
-				returning = true;
 				ROS_INFO("HIT BOUNDARY");
 				
-				backTime = time(NULL) + 5;
-				while( time(NULL) < backTime )
+				//force bot to move towards within polygon
+				returnToBoundary( n );
+				setBotMode( "AUTO" , n );
+				while( !(boundaryCheck(quadPolygon)) )
 				{
-					setBotMovement( REVERSE_SPEED, STRAIGHT, rcPub );
 					ros::spinOnce();
 					r.sleep();
 				}
-				returning = false;
+				setBotMode( "MANUAL" , n );
 
 				setBotMovement( ZERO_SPEED, STRAIGHT, rcPub );
-				//setBotMovement( FORWARD_SPEED, STRAIGHT, rcPub );
 				traveling = false;
 			}
 
+			//case: time limit for moving has ended
 			if( time(NULL) == moveTime )
 			{
 				ROS_INFO("MOVING COMPLETED");

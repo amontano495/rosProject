@@ -93,11 +93,16 @@ int main(int argc, char** argv)
 	ros::spinOnce();
 	r.sleep();
 
+	//while ROS is still active
 	while(ros::ok())
 	{
+	
+		//randomly select a direction and time length
 		randomDirection = rand() % 2;
 		randomTime = getUniRand(1, 2);
 
+
+		//spin backwards to choose a new, random direction
 		if( randomDirection == RIGHT ) 
 		{
 			ROS_INFO("TURNING RIGHT...");
@@ -146,6 +151,8 @@ int main(int argc, char** argv)
 		//head towards center until within boundary
 		ROS_INFO("RETURNING TO BOUNDARY...");
 
+
+		//force bot to move towards within polygon
 		returnToBoundary( n );
 		setBotMode( "AUTO" , n );
 
@@ -155,7 +162,10 @@ int main(int argc, char** argv)
 			r.sleep();
 		}
 		setBotMode( "MANUAL" , n );
-		
+	
+
+		//move forward for a small amount of time
+		//ensures bot is completely within boundaries	
 		stopTime = time(NULL) + 2;
 		while( time(NULL) < stopTime )
 		{

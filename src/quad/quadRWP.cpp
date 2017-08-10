@@ -115,7 +115,7 @@ int main( int argc, char** argv )
 			erleInit(16, n);
 			ros::spinOnce();
 
-			coord targetCoord = randCoord( quadPolygon );
+			targetCoord = randCoord( quadPolygon );
 			targetLat = targetCoord.lat;
 			targetLong = targetCoord.lon;
 
