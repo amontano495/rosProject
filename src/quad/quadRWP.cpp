@@ -1,4 +1,6 @@
 #include <string>
+#include <map>
+#include <random>
 #include <math.h>
 #include <vector>
 #include <cstdlib>
@@ -142,23 +144,30 @@ coord randCoord( coord polygon[] )
 	double latLow;
 	double lonLow;
 
-	latHigh = polygon[0].lat;
-	lonHigh = polygon[0].lon;
+	latHigh = polygon[2].lat;
+	lonHigh = polygon[1].lon;
 	latLow = polygon[3].lat;
-	lonLow = polygon[3].lon;
-	
+	lonLow = polygon[0].lon;
+
+	std::random_device rd;
+	std::mt19937 e2(rd());
+	std::uniform_real_distribution<> distLat(latLow,latHigh);
+	std::uniform_real_distribution<> distLon(lonHigh,lonLow);
+
 	while( withinPolygon == false )
 	{
-		randLat = latLow + ((double)rand() / RAND_MAX) * (latHigh - latLow);
-		randLon = lonLow + ((double)rand() / RAND_MAX) * (lonHigh - lonLow);
+		randLat = (double)distLat(e2);
+		randLon = (double)distLon(e2);
+
 		std::cout << "Rand Coords: " << std::setprecision(9) << randLat << " , " << std::setprecision(9) << randLon << std::endl;
+
 		randCoord.lat = randLat;
 		randCoord.lon = randLon;
-		
+
 		if( boundaryCheckRand( polygon, randLat, randLon ) )
 			withinPolygon = true;
 	}
-	
+
 	randCoord.lat = randLat;
 	randCoord.lon = randLon;
 	return randCoord;
