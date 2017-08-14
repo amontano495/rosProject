@@ -6,6 +6,7 @@
 #include <ros/ros.h>
 #include <mavros_msgs/SetMode.h>
 #include <mavros_msgs/State.h>
+#include <mavros_msgs/WaypointClear.h>
 #include <geometry_msgs/TwistStamped.h>
 #include <mavros_msgs/OverrideRCIn.h>
 #include <mavros_msgs/WaypointPush.h>
@@ -18,6 +19,8 @@
 #include <sensor_msgs/Imu.h>
 #include <sensor_msgs/NavSatFix.h>
 
+
+//data type to represent lattitude and longitude
 struct coord {
 	double lat;
 	double lon;
@@ -30,9 +33,11 @@ void getBotCoords( const sensor_msgs::NavSatFix& msg );
 //The two vertices represent opposite corners of a given square
 bool boundaryCheck( coord thePath[] );
 
-void setBotMode( std::string mode, ros::NodeHandle &node );
-
+//Used by boundary check
 bool RayCrossesSegment( coord a, coord b );
+
+//Sets the current mode of the robot (AUTO, MANUAL, GUIDED, etc)
+void setBotMode( std::string mode, ros::NodeHandle &node );
 
 //Returns a uniformly distributed random number each time it is called
 int getUniRand( int min, int max );
@@ -47,11 +52,15 @@ bool waypointPusher( mavros_msgs::WaypointPush &pusher, ros::ServiceClient clien
 void returnToBoundary( ros::NodeHandle &node );
 
 //Captures the vertices of the polygon
-void setPolyVerts();
+void setPolyVerts( ros::NodeHandle &node, coord &NW, coord &NE, coord &SW, coord &SE);
 
 //Updates the speed of the bot
 void setBotMovement( int speed, int angle, ros::Publisher &rcPub );
 
-
+//Checks if the rover is within a defined radius where params are center
 bool withinWaypointRadius( double lat, double lon );
+
+//Clears the waypoint mission
+bool waypointClear( ros::NodeHandle node );
+
 #endif

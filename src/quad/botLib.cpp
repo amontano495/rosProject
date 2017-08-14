@@ -45,15 +45,10 @@ bool boundaryCheck( coord thePath[] )
 	}
 
 	if( crossings % 2 == 1 )
-	{
 		botWithinBoundary = true;
-	}
 
 	else
-	{
 		botWithinBoundary = false;
-		ROS_WARN_STREAM("OUT OF BOUNDS! BOT LAT: " << std::setprecision(10) << botLat << " BOT LON: " << std::setprecision(10) << botLon );
-	}
 
 	return botWithinBoundary;
 }
@@ -171,40 +166,53 @@ void returnToBoundary( ros::NodeHandle &node )
 }
 
 
-void setPolyVerts()
+void setPolyVerts( ros::NodeHandle &node, coord &NW, coord &NE, coord &SW, coord &SE )
 {
 	int vertCounter = 0;
 	std::string vertUserInput;
 
+	ros::Subscriber gpsSub = node.subscribe("/mavros/global_position/global", 1000, &getBotCoords );
+
 	while( vertCounter < 4 )
 	{
 		std::cin >> vertUserInput;
-		ros::spinOnce();
 		if( vertUserInput == "NW" )
 		{
+			ros::spinOnce();
 			NWvert.lat = botLat;
 			NWvert.lon = botLon;
+			std::cout << "NW VERT RECORDED: " << NWvert.lat << " , " << NWvert.lon << std::endl;
 			vertCounter++;
 		}
 		else if( vertUserInput == "NE" )
 		{
+			ros::spinOnce();
 			NEvert.lat = botLat;
 			NEvert.lon = botLon;
+			std::cout << "NE VERT RECORDED: " << NEvert.lat << " , " << NEvert.lon << std::endl;
 			vertCounter++;
 		}
 		else if( vertUserInput == "SW" )
 		{
+			ros::spinOnce();
 			SWvert.lat = botLat;
 			SWvert.lon = botLon;
+			std::cout << "SW VERT RECORDED: " << SWvert.lat << " , " << SWvert.lon << std::endl;
 			vertCounter++;
 		}
 		else if( vertUserInput == "SE" )
 		{
+			ros::spinOnce();
 			SEvert.lat = botLat;
 			SEvert.lon = botLon;
+			std::cout << "SE VERT RECORDED: " << SEvert.lat << " , " << SEvert.lon << std::endl;
 			vertCounter++;
 		}
 	}
+	NW = NWvert;
+	NE = NEvert;
+	SW = SWvert;
+	SE = SEvert;
 }
 
 bool withinWaypointRadius( double lat, double lon )
@@ -221,5 +229,17 @@ bool withinWaypointRadius( double lat, double lon )
 		inCircle = false;
 
 	return inCircle;
+}
+
+bool waypointClear( ros::NodeHandle node )
+{
+	mavros_msgs::WaypointClear clearer;
+	ros::ServiceClient client;	
+	client = node.serviceClient<mavros_msgs::WaypointClear>("mavros/mission/clear");
+
+	if( client.call( clearer ) )
+		return true;
+
+	return false;	
 }
 #endif

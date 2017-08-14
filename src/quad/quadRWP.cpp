@@ -122,6 +122,30 @@ int main( int argc, char** argv )
 			std::cout << "Pushed coords: " << std::setprecision(9) << targetLat << " , " << std::setprecision(9) << targetLong << std::endl;
 			waypointPusher( wayPusher, pushClient, n, 3, 16, true, true, 0, 0, 0, 0, targetLat, targetLong, 50);
 		}
+
+		if( !(boundaryCheck(quadPolygon)) )
+		{
+			waypointClear( n );
+			ROS_INFO("CLEARING WAYPOINTS..................");
+			returnToBoundary( n );
+			ROS_INFO("SET TO RETURN HOME..................");
+			while( !(boundaryCheck(quadPolygon)) )
+			{
+				ros::spinOnce();
+				r.sleep();
+			}
+			ROS_INFO("RETURNED");
+
+			targetCoord = randCoord( quadPolygon );
+			targetLat = targetCoord.lat;
+			targetLong = targetCoord.lon;
+
+			std::cout << "Pushed coords: " << std::setprecision(9) << targetLat << " , " << std::setprecision(9) << targetLong << std::endl;
+
+			waypointPusher( wayPusher, pushClient, n, 2, 22, true, true, 15, 0, 0, 0, targetLat, targetLong, 50 );
+			waypointPusher( wayPusher, pushClient, n, 3, 16, true, true, 0, 0, 0, 0, targetLat, targetLong, 50);
+		}
+
 		ros::spinOnce();
 		r.sleep();
 	}
@@ -145,9 +169,9 @@ coord randCoord( coord polygon[] )
 	double lonLow;
 
 	latHigh = polygon[2].lat;
-	lonHigh = polygon[1].lon;
+	lonHigh = polygon[0].lon;
 	latLow = polygon[3].lat;
-	lonLow = polygon[0].lon;
+	lonLow = polygon[1].lon;
 
 	std::random_device rd;
 	std::mt19937 e2(rd());
