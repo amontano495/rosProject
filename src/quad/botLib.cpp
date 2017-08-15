@@ -166,6 +166,40 @@ void returnToBoundary( ros::NodeHandle &node )
 }
 
 
+void setPolyVertsFromFile( coord &NW, coord &NE, coord &SW, coord &SE)
+{
+	std::string line, corner;
+	double lat, lon;
+	std::ifstream coordFile;
+	std::stringstream ss;
+
+	coordFile.open("polygonCoordinate.txt");
+
+	std::getline(coordFile,line);
+	ss = std::stringstream(line);
+	ss >> corner >> lat >> lon;
+	NW.lat = lat;
+	NW.lon = lon;
+	
+	std::getline(coordFile,line);
+	ss = std::stringstream(line);
+	ss >> corner >> lat >> lon;
+	SW.lat = lat;
+	SW.lon = lon;
+	
+	std::getline(coordFile,line);
+	ss = std::stringstream(line);
+	ss >> corner >> lat >> lon;
+	NE.lat = lat;
+	NE.lon = lon;
+	
+	std::getline(coordFile,line);
+	ss = std::stringstream(line);
+	ss >> corner >> lat >> lon;
+	SE.lat = lat;
+	SE.lon = lon;
+}
+
 void setPolyVerts( ros::NodeHandle &node, coord &NW, coord &NE, coord &SW, coord &SE )
 {
 	int vertCounter = 0;

@@ -1,6 +1,8 @@
 #ifndef BOTLIB_H
 #define BOTLIB_H
 
+#include <fstream>
+#include <iostream>
 #include <string>
 #include <cstdlib>
 #include <ros/ros.h>
@@ -53,6 +55,9 @@ void returnToBoundary( ros::NodeHandle &node );
 
 //Captures the vertices of the polygon
 void setPolyVerts( ros::NodeHandle &node, coord &NW, coord &NE, coord &SW, coord &SE);
+
+//Captures the vertices of the polygon
+void setPolyVertsFromFile( coord &NW, coord &NE, coord &SW, coord &SE);
 
 //Updates the speed of the bot
 void setBotMovement( int speed, int angle, ros::Publisher &rcPub );

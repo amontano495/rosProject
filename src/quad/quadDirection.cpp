@@ -63,8 +63,8 @@ int main(int argc, char** argv)
 
 	//Lat/Lon vertices of the polygon
 	//Must be in order
-
-
+	setPolyVertsFromFile( quadPolygon[0], quadPolygon[2], quadPolygon[1], quadPolygon[3]);
+/*
 	//NW vertex
 	quadPolygon[0].lat = 39.539045;
 	quadPolygon[0].lon = -119.814623;
@@ -80,7 +80,7 @@ int main(int argc, char** argv)
 	//SE vertex
 	quadPolygon[3].lat = 39.537783;
 	quadPolygon[3].lon = -119.814214;
-
+*/
 	//Sets robot to "MANUAL" mode
 	setBotMode( "MANUAL" , n );
 
