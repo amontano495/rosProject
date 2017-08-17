@@ -60,10 +60,11 @@ int main(int argc, char** argv)
 	ros::Subscriber gpsSub = n.subscribe("/mavros/global_position/global", 1000, &getBotCoords );
 
 	coord quadPolygon[4];
+	coord centerCoord;
 
 	//Lat/Lon vertices of the polygon
 	//Must be in order
-	setPolyVertsFromFile( quadPolygon[0], quadPolygon[2], quadPolygon[1], quadPolygon[3]);
+	setPolyVertsFromFile( quadPolygon[0], quadPolygon[2], quadPolygon[1], quadPolygon[3], centerCoord);
 /*
 	//NW vertex
 	quadPolygon[0].lat = 39.539045;
@@ -147,7 +148,7 @@ int main(int argc, char** argv)
 
 
 		//force bot to move towards within polygon
-		returnToBoundary( n );
+		returnToBoundary( n , centerCoord );
 		setBotMode( "AUTO" , n );
 
 		while( !(boundaryCheck(quadPolygon)) )

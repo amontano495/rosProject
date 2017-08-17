@@ -51,13 +51,13 @@ bool waypointPusher( mavros_msgs::WaypointPush &pusher, ros::ServiceClient clien
 	float lat, float lon, float alt );
 
 //Sends the rover back to within the boundaries
-void returnToBoundary( ros::NodeHandle &node );
+void returnToBoundary( ros::NodeHandle &node, coord center );
 
 //Captures the vertices of the polygon
 void setPolyVerts( ros::NodeHandle &node, coord &NW, coord &NE, coord &SW, coord &SE);
 
 //Captures the vertices of the polygon
-void setPolyVertsFromFile( coord &NW, coord &NE, coord &SW, coord &SE);
+void setPolyVertsFromFile( coord &NW, coord &NE, coord &SW, coord &SE, coord &C);
 
 //Updates the speed of the bot
 void setBotMovement( int speed, int angle, ros::Publisher &rcPub );

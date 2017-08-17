@@ -61,8 +61,11 @@ int main(int argc, char** argv)
 	int inputMoveTime = 20;
 
 	//Represents vertices of a square
+	coord centerCoord;
 	coord quadPolygon[4];
+	setPolyVertsFromFile( quadPolygon[0], quadPolygon[2], quadPolygon[1], quadPolygon[3], centerCoord );
 
+/*
 	quadPolygon[0].lat = 39.539045;
 	quadPolygon[0].lon = -119.814623;
 
@@ -74,6 +77,7 @@ int main(int argc, char** argv)
 
 	quadPolygon[3].lat = 39.537783;
 	quadPolygon[3].lon = -119.814214;
+*/
 
 
 
@@ -138,7 +142,7 @@ int main(int argc, char** argv)
 				ROS_INFO("HIT BOUNDARY");
 				
 				//force bot to move towards within polygon
-				returnToBoundary( n );
+				returnToBoundary( n, centerCoord );
 				setBotMode( "AUTO" , n );
 				while( !(boundaryCheck(quadPolygon)) )
 				{

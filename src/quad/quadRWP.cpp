@@ -50,8 +50,11 @@ int main( int argc, char** argv )
 	ros::Subscriber gpsSub1 = n.subscribe("/mavros/global_position/raw/fix", 1000, &getBotCoords);
 
 	//Obtain data from user
-
+	coord centerCoord;
 	coord quadPolygon[4];
+	setPolyVertsFromFile( quadPolygon[0], quadPolygon[2], quadPolygon[1], quadPolygon[3], centerCoord );
+	
+/*
 	//NW vertex
 	quadPolygon[0].lat = 39.539045;
 	quadPolygon[0].lon = -119.814623;
@@ -67,6 +70,7 @@ int main( int argc, char** argv )
 	//SE vertex
 	quadPolygon[3].lat = 39.537783;
 	quadPolygon[3].lon = -119.814214;
+*/
 
 
 	int totalTime = 120;
@@ -127,7 +131,7 @@ int main( int argc, char** argv )
 		{
 			waypointClear( n );
 			ROS_INFO("CLEARING WAYPOINTS..................");
-			returnToBoundary( n );
+			returnToBoundary( n, centerCoord );
 			ROS_INFO("SET TO RETURN HOME..................");
 			while( !(boundaryCheck(quadPolygon)) )
 			{

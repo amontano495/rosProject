@@ -156,17 +156,17 @@ bool waypointPusher( mavros_msgs::WaypointPush &pusher, ros::ServiceClient clien
 }
 
 
-void returnToBoundary( ros::NodeHandle &node )
+void returnToBoundary( ros::NodeHandle &node, coord center )
 {
 	ros::ServiceClient pushClient;
 	mavros_msgs::WaypointPush wayPusher;
 
-	waypointPusher( wayPusher, pushClient, node, 2, 22, true, true, 15, 0, 0, 0, 39.538440, -119.814151, 50 );
-	waypointPusher( wayPusher, pushClient, node, 3, 16, true, true, 0, 0, 0, 0, 39.538440, -119.814151, 50 );
+	waypointPusher( wayPusher, pushClient, node, 2, 22, true, true, 15, 0, 0, 0, center.lat, center.lon, 50 );
+	waypointPusher( wayPusher, pushClient, node, 3, 16, true, true, 0, 0, 0, 0, center.lat, center.lon, 50 );
 }
 
 
-void setPolyVertsFromFile( coord &NW, coord &NE, coord &SW, coord &SE)
+void setPolyVertsFromFile( coord &NW, coord &NE, coord &SW, coord &SE, coord &C )
 {
 	std::string line, corner;
 	double lat, lon;
@@ -198,6 +198,12 @@ void setPolyVertsFromFile( coord &NW, coord &NE, coord &SW, coord &SE)
 	ss >> corner >> lat >> lon;
 	SE.lat = lat;
 	SE.lon = lon;
+
+	std::getline(coordFile,line);
+	ss = std::stringstream(line);
+	ss >> corner >> lat >> lon;
+	C.lat = lat;
+	C.lon = lon;
 }
 
 void setPolyVerts( ros::NodeHandle &node, coord &NW, coord &NE, coord &SW, coord &SE )
