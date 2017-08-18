@@ -64,7 +64,7 @@ int main(int argc, char** argv)
 
 	//Lat/Lon vertices of the polygon
 	//Must be in order
-	setPolyVertsFromFile( quadPolygon[0], quadPolygon[2], quadPolygon[1], quadPolygon[3], centerCoord);
+	setPolyVertsFromFile( quadPolygon[0], quadPolygon[2], quadPolygon[3], quadPolygon[1], centerCoord );
 /*
 	//NW vertex
 	quadPolygon[0].lat = 39.539045;
